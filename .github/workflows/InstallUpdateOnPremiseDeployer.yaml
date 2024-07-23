@@ -1,0 +1,98 @@
+name: Install or Update AL-Go OnPremise Deployer
+
+on:
+  schedule:
+    - cron: '0 10 1-7 * 2'  # First Tuesday of the month at 10:00 AM
+    - cron: '0 10 15-21 * 2'  # Third Tuesday of the month at 10:00 AM
+  workflow_dispatch:
+
+jobs:
+  InstallUpdateOnPremiseDeployer:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Check if AL-Go OnPremise Deployer is installed
+      id: check_install
+      run: |
+        echo "Checking if AL-Go OnPremise Deployer is installed..."
+        if [ -f ./.github/DeployToOnPremise.ps1 ]; then
+          echo "AL-Go OnPremise Deployer is already installed."
+          echo "script_exists=true" >> $GITHUB_ENV
+        else
+          echo "AL-Go OnPremise Deployer is not installed."
+          echo "script_exists=false" >> $GITHUB_ENV
+        fi
+
+    - name: Install AL-Go OnPremise Deployer 
+      if: env.script_exists == 'false'
+      run: |
+        echo "Installing AL-Go OnPremise Deployer..."
+        curl -o ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/workflows/InstallUpdateOnPremiseDeployer.yaml
+        curl -o ./.github/DeployToOnPremise.ps1 https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/DeployToOnPremise.ps1
+        echo "Installation completed."
+  
+    - name: Download AL-Go OnPremise Deployer's current version
+      if: env.script_exists == 'true'
+      run: |
+        echo "Downloading current version of AL-Go OnPremise Deployer..."
+        curl -o ./.github/workflows/InstallUpdateOnPremiseDeployer_origin.yaml https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/workflows/InstallUpdateOnPremiseDeployer.yaml
+        curl -o ./.github/DeployToOnPremise_origin.ps1 https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/DeployToOnPremise.ps1
+        echo "Download completed."
+
+    - name: Removing scheduler settings in workflow definitions
+      if: env.script_exists == 'true'
+      run: |
+        echo "Removing scheduler settings in workflow definitions..."
+        awk '/on:/,0 {next} {print}' ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml > ./.github/workflows/InstallUpdateOnPremiseDeployer_no_schedule.yaml  
+        awk '/on:/,0 {next} {print}' ./.github/workflows/InstallUpdateOnPremiseDeployer_origin.yaml > ./.github/workflows/InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml
+        echo "Scheduler settings removed." 
+
+    - name: Check for updates
+      if: env.script_exists == 'true'
+      id: compare_scripts
+      run: |
+        echo "Checking for updates..."
+        if cmp -s ./.github/workflows/InstallUpdateOnPremiseDeployer_no_schedule.yaml ./.github/workflows/InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml; then
+          echo "No updates available."
+          echo "scripts_are_identical=true" >> $GITHUB_ENV
+        else
+          echo "Updates found."
+          echo "scripts_are_identical=false" >> $GITHUB_ENV
+        fi
+
+    - name: Apply updates
+      if: env.script_exists == 'true' && env.scripts_are_identical == 'false'
+      run: |
+        echo "Preserving scheduler settings..."
+        awk '/on:/,0' ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml > ./.github/workflows/InstallUpdateOnPremiseDeployer_schedule_settings.yaml
+        echo "Scheduler settings preserved."
+        echo "Applying updates..."
+        cat ./.github/workflows/InstallUpdateOnPremiseDeployer_schedule_settings.yaml ./.github/workflows/InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml > ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml
+        echo "Updates applied."
+
+    - name: Commit and push changes
+      run: |
+        echo "Checking for changes to commit..."
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add ./.github/DeployToOnPremise.ps1
+        git add ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml
+        if git diff-index --quiet HEAD; then
+          echo "No changes to commit."
+        else
+          echo "Committing and pushing changes..."
+          git commit -m "Install/Update AL-Go OnPremise Deployer"
+          git push
+          echo "Changes committed and pushed."
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cleanup
+      run: |
+        rm -f ./.github/workflows/InstallUpdateOnPremiseDeployer_origin.ps1
+        rm -f ./.github/workflows/InstallUpdateOnPremiseDeployer_no_schedule.yaml
+        rm -f ./.github/workflows/InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml
+        rm -f ./.github/workflows/InstallUpdateOnPremiseDeployer_schedule_settings.yaml
