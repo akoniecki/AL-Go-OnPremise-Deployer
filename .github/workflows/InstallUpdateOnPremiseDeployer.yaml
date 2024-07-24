@@ -1,4 +1,4 @@
-name: Install or Update AL-Go OnPremise Deployer v2
+name: Install or Update AL-Go OnPremise Deployer
 
 on:
   schedule:
