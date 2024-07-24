@@ -1,4 +1,4 @@
-name: Install or Update AL-Go OnPremise Deployer
+name: Install or Update AL-Go OnPremise Deployer v2
 
 on:
   schedule:
@@ -13,14 +13,10 @@ defaults:
   run:
     shell: powershell
 
-env:
-  ALGoOrgSettings: ${{ vars.ALGoOrgSettings }}
-  ALGoRepoSettings: ${{ vars.ALGoRepoSettings }}
-
 jobs:
   InstallUpdateOnPremiseDeployer:
     name: 'Install/Update AL-Go OnPremise Deployer'
-    runs-on: [ windows-latest ]
+    runs-on: [windows-latest]
 
     steps:
     - name: Checkout
@@ -30,107 +26,84 @@ jobs:
       id: init
       uses: microsoft/AL-Go-Actions/WorkflowInitialize@v5.2
       with:
-        shell: powershell
         eventId: "DO0098"
 
     - name: Read settings
       uses: microsoft/AL-Go-Actions/ReadSettings@v5.2
       with:
-        shell: powershell
         get: templateUrl
 
     - name: Read secrets
       id: ReadSecrets
       uses: microsoft/AL-Go-Actions/ReadSecrets@v5.2
       with:
-        shell: powershell
         gitHubSecrets: ${{ toJson(secrets) }}
         getSecrets: 'ghTokenWorkflow'
 
-    - name: Check if AL-Go OnPremise Deployer is installed
-      id: check_install
+    - name: Install/Update AL-Go OnPremise Deployer
       run: |
-        echo "Checking if AL-Go OnPremise Deployer is installed..."
-        if (Test-Path ./.github/DeployToOnPremise.ps1) {
-          echo "AL-Go OnPremise Deployer is already installed."
-          echo "script_exists=true" >> $GITHUB_ENV
-        } else {
-          echo "AL-Go OnPremise Deployer is not installed."
-          echo "script_exists=false" >> $GITHUB_ENV
+        try {
+          Write-Output "Importing helpers"
+          $helperBasePath = "..\..\_actions\microsoft\AL-Go-Actions\"
+          $alGoActionsPath = Get-ChildItem -Path $helperBasePath -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if ($null -eq $alGoActionsPath) {
+              throw "AL-Go-Actions directory not found."
+          }
+          . (Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1" -Resolve)
+
+          Write-Output "Downloading latest AL-Go OnPremise Deployer..."
+          $token = "${{ secrets.ghTokenWorkflow }}"
+          $serverUrl, $branch = CloneIntoNewFolder -actor 'akoniecki' -token $token -DirectCommit $false -newBranchPrefix 'update-al-go-onpremise-deployer'
+        
+          $update = Test-Path ".github\DeployToOnPremise.ps1"
+
+          if (!$update) {
+            Write-Output "AL-Go OnPremise Deployer is not installed. Preparing for installation."
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/workflows/InstallUpdateOnPremiseDeployer.yaml" -OutFile ".github\workflows\InstallUpdateOnPremiseDeployer.yaml"
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/DeployToOnPremise.ps1" -OutFile ".github\DeployToOnPremise.ps1"
+          } else {
+            Write-Output "AL-Go OnPremise Deployer is installed. Preparing for update."
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/workflows/InstallUpdateOnPremiseDeployer.yaml" -OutFile ".github\workflows\InstallUpdateOnPremiseDeployer_origin.yaml"
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/DeployToOnPremise.ps1" -OutFile ".github\DeployToOnPremise_origin.ps1"
+          }        
+          Write-Output "Latest AL-Go OnPremise Deployer downloaded."
+
+          if ($update) {
+            Write-Output "Starting AL-Go OnPremise Deployer update."
+            Write-Output "Removing scheduler settings in workflow definitions..."
+            (Get-Content ".github\workflows\InstallUpdateOnPremiseDeployer.yaml") -notmatch 'on:' | Set-Content ".github\workflows\InstallUpdateOnPremiseDeployer_no_schedule.yaml"
+            (Get-Content ".github\workflows\InstallUpdateOnPremiseDeployer_origin.yaml") -notmatch 'on:' | Set-Content ".github\workflows\InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml"
+            Write-Output "Scheduler settings removed." 
+            Write-Output "Preserving scheduler settings..."
+            (Get-Content ".github\workflows\InstallUpdateOnPremiseDeployer.yaml") -match 'on:' | Set-Content ".github\workflows\InstallUpdateOnPremiseDeployer_schedule_settings.yaml"
+            Write-Output "Scheduler settings preserved."
+
+            Write-Output "Checking for updates..."
+            $differenceYaml = Compare-Object (Get-Content ".github\workflows\InstallUpdateOnPremiseDeployer_no_schedule.yaml") (Get-Content ".github\workflows\InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml")
+            $differencePs = Compare-Object (Get-Content ".github\DeployToOnPremise.ps1") (Get-Content ".github\DeployToOnPremise_origin.ps1")
+
+            if (($differenceYaml -eq $null) -And ($differencePS -eq $null)) {
+              Write-Output "No updates available."
+            } else {
+              Write-Output "Updates found. Applying..."
+              (Get-Content ".github\DeployToOnPremise_origin.ps1") | Set-Content ".github\DeployToOnPremise.ps1"
+              (Get-Content ".github\workflows\InstallUpdateOnPremiseDeployer_schedule_settings.yaml") + (Get-Content ".github\workflows\InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml") | Set-Content ".github\workflows\InstallUpdateOnPremiseDeployer.yaml"
+              Write-Output "Updates applied."
+            }
+
+            Write-Output "Removing temporary files..."
+            Remove-Item -Force ".github\workflows\InstallUpdateOnPremiseDeployer_no_schedule.yaml"
+            Remove-Item -Force ".github\workflows\InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml"
+            Remove-Item -Force ".github\workflows\InstallUpdateOnPremiseDeployer_schedule_settings.yaml"
+            Remove-Item -Force ".github\workflows\InstallUpdateOnPremiseDeployer_origin.yaml"
+            Remove-Item -Force ".github\DeployToOnPremise_origin.ps1"
+            Write-Output "Temporary files removed."
+          }
+
+          Write-Output "Committing changes..."
+          $commit_msg = "Install/Update AL-Go OnPremise Deployer"  
+          CommitFromNewFolder -serverUrl $serverUrl -commitMessage $commit_msg -branch $branch
+        } catch {
+          Write-Error "An error occurred: $_"
+          exit 1
         }
-
-    - name: Install AL-Go OnPremise Deployer 
-      if: env.script_exists == 'false'
-      run: |
-        echo "Installing AL-Go OnPremise Deployer..."
-        curl -o ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/workflows/InstallUpdateOnPremiseDeployer.yaml
-        curl -o ./.github/DeployToOnPremise.ps1 https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/DeployToOnPremise.ps1
-        echo "Installation completed."
-  
-    - name: Download AL-Go OnPremise Deployer's current version
-      if: env.script_exists == 'true'
-      run: |
-        echo "Downloading current version of AL-Go OnPremise Deployer..."
-        curl -o ./.github/workflows/InstallUpdateOnPremiseDeployer_origin.yaml https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/workflows/InstallUpdateOnPremiseDeployer.yaml
-        curl -o ./.github/DeployToOnPremise_origin.ps1 https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/DeployToOnPremise.ps1
-        echo "Download completed."
-
-    - name: Removing scheduler settings in workflow definitions
-      if: env.script_exists == 'true'
-      run: |
-        echo "Removing scheduler settings in workflow definitions..."
-        awk '/on:/,0 {next} {print}' ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml > ./.github/workflows/InstallUpdateOnPremiseDeployer_no_schedule.yaml  
-        awk '/on:/,0 {next} {print}' ./.github/workflows/InstallUpdateOnPremiseDeployer_origin.yaml > ./.github/workflows/InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml
-        echo "Scheduler settings removed." 
-
-    - name: Check for updates
-      if: env.script_exists == 'true'
-      id: compare_scripts
-      run: |
-        echo "Checking for updates..."
-        if (Compare-Object (Get-Content ./.github/workflows/InstallUpdateOnPremiseDeployer_no_schedule.yaml) (Get-Content ./.github/workflows/InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml) -SyncWindow 0 -ExcludeDifferent) {
-          echo "No updates available."
-          echo "scripts_are_identical=true" >> $GITHUB_ENV
-        } else {
-          echo "Updates found."
-          echo "scripts_are_identical=false" >> $GITHUB_ENV
-        }
-
-    - name: Apply updates
-      if: env.script_exists == 'true' && env.scripts_are_identical == 'false'
-      run: |
-        echo "Preserving scheduler settings..."
-        awk '/on:/,0' ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml > ./.github/workflows/InstallUpdateOnPremiseDeployer_schedule_settings.yaml
-        echo "Scheduler settings preserved."
-        echo "Applying updates..."
-        cat ./.github/workflows/InstallUpdateOnPremiseDeployer_schedule_settings.yaml ./.github/workflows/InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml > ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml
-        echo "Updates applied."
-
-    - name: Commit and push changes
-      env:
-        GITHUB_TOKEN: ${{ fromJson(steps.ReadSecrets.outputs.Secrets).ghTokenWorkflow }}
-      run: |
-        echo "Checking for changes to commit..."
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add ./.github/DeployToOnPremise.ps1
-        git add ./.github/workflows/InstallUpdateOnPremiseDeployer.yaml
-        if (git diff-index --quiet HEAD) {
-          echo "No changes to commit."
-        } else {
-          echo "Committing and pushing changes..."
-          $COMMIT_MSG = "[Update] Install/Update AL-Go OnPremise Deployer"
-          $BRANCH_NAME = "update-al-go-onpremise-deployer-$(Get-Date -Format 'yyyyMMddHHmmss')"
-          git checkout -b $BRANCH_NAME
-          git commit -m "$COMMIT_MSG"
-          git push -u origin $BRANCH_NAME
-          gh pr create --title "$COMMIT_MSG" --body "Automated update/installation of AL-Go OnPremise Deployer" --head $BRANCH_NAME
-          echo "Changes committed and pull request created."
-        }
-
-    - name: Cleanup
-      run: |
-        rm -f ./.github/workflows/InstallUpdateOnPremiseDeployer_origin.ps1
-        rm -f ./.github/workflows/InstallUpdateOnPremiseDeployer_no_schedule.yaml
-        rm -f ./.github/workflows/InstallUpdateOnPremiseDeployer_origin_no_schedule.yaml
-        rm -f ./.github/workflows/InstallUpdateOnPremiseDeployer_schedule_settings.yaml
