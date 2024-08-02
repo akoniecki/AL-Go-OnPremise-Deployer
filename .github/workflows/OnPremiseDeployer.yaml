@@ -28,7 +28,7 @@ jobs:
     - name: Read settings
       uses: microsoft/AL-Go-Actions/ReadSettings@v5.2
       with:
-        get: templateUrl
+        get: UpdateOnPremiseDeployerSchedule
 
     - name: Read secrets
       id: ReadSecrets
@@ -47,21 +47,28 @@ jobs:
               throw "AL-Go-Actions directory not found."
           }
           . (Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1" -Resolve)
+          Invoke-Expression -Command (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/AL-Go-Actions/main/CheckForUpdates/yamlclass.ps1").Content
 
           Write-Output "Downloading latest AL-Go OnPremise Deployer..."
           $token = "${{ secrets.ghTokenWorkflow }}"
-          $serverUrl, $branch = CloneIntoNewFolder -actor 'akoniecki' -token $token -DirectCommit $false -newBranchPrefix 'update-al-go-onpremise-deployer'
+          if (-not $token) {
+              throw "A personal access token with permissions to modify Workflows is needed. You must add a secret called GhTokenWorkflow containing a personal access token. You can Generate a new token from https://github.com/settings/tokens. Make sure that the workflow scope is checked."
+          }
+          $serverUrl, $branch = CloneIntoNewFolder -actor $ENV:GITHUB_ACTOR -token $token -DirectCommit $false -newBranchPrefix 'update-al-go-onpremise-deployer'
           $update = Test-Path ".github\DeployToOnPremise.ps1"
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/workflows/OnPremiseDeployer.yaml" -OutFile ".github\workflows\OnPremiseDeployer.yaml"
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/DeployToOnPremise.ps1" -OutFile ".github\DeployToOnPremise.ps1"
           Write-Output "AL-Go OnPremise Deployer files downloaded."
-              
-          $yaml = [Yaml]::Load('.github\workflows\OnPremiseDeployer.yaml')
-          $workflowScheduleKey = "UpdateOnPremiseDeployerSchedule"
-          if ($repoSettings.Keys -contains $workflowScheduleKey) {
+          
+          $schedule = $ENV:UpdateOnPremiseDeployerSchedule
+          if ($schedule) {
+            Write-Output "Updating scheduler settings..."
+            $yaml = [Yaml]::Load('.github\workflows\OnPremiseDeployer.yaml')
             $yamlOn = $yaml.Get('on:/')
-            $yaml.Replace('on:/', $yamlOn.content+@('schedule:', "  - cron: '$($repoSettings."$workflowScheduleKey")'"))
-            $yaml.Save('.github\workflows\OnPremiseDeployer.yaml')
+            $yaml.Replace('on:/', $yamlOn.content+@('schedule:', "  - cron: '$schedule'"))
+            $yaml.content -join "`n" | Out-File -FilePath '.github\workflows\OnPremiseDeployer.yaml' -Encoding utf8 -Force
+          } else {
+            Write-Output "No scheduler setting found. To enable it update your AL-Go-Settings.json file: `"UpdateOnPremiseDeployerSchedule`": `"0 19 * * 2`"."
           }
 
           Write-Output "Committing changes..."
@@ -71,6 +78,6 @@ jobs:
           }
           CommitFromNewFolder -serverUrl $serverUrl -commitMessage $commit_msg -branch $branch
         } catch {
-          Write-Error "An error occurred: $_"
+          Write-Error ("An error occurred: " + $_.Exception.Message)
           exit 1
         }
