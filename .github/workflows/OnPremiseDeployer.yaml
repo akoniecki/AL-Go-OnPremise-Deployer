@@ -1,0 +1,76 @@
+name: Install or Update AL-Go OnPremise Deployer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: powershell
+
+jobs:
+  InstallUpdateOnPremiseDeployer:
+    name: 'Install/Update AL-Go OnPremise Deployer'
+    runs-on: [windows-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Initialize the workflow
+      id: init
+      uses: microsoft/AL-Go-Actions/WorkflowInitialize@v5.2
+      with:
+        eventId: "DO0098"
+
+    - name: Read settings
+      uses: microsoft/AL-Go-Actions/ReadSettings@v5.2
+      with:
+        get: templateUrl
+
+    - name: Read secrets
+      id: ReadSecrets
+      uses: microsoft/AL-Go-Actions/ReadSecrets@v5.2
+      with:
+        gitHubSecrets: ${{ toJson(secrets) }}
+        getSecrets: 'ghTokenWorkflow'
+
+    - name: Install/Update AL-Go OnPremise Deployer
+      run: |
+        try {
+          Write-Output "Importing helpers"
+          $helperBasePath = "..\..\_actions\microsoft\AL-Go-Actions\"
+          $alGoActionsPath = Get-ChildItem -Path $helperBasePath -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if ($null -eq $alGoActionsPath) {
+              throw "AL-Go-Actions directory not found."
+          }
+          . (Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1" -Resolve)
+
+          Write-Output "Downloading latest AL-Go OnPremise Deployer..."
+          $token = "${{ secrets.ghTokenWorkflow }}"
+          $serverUrl, $branch = CloneIntoNewFolder -actor 'akoniecki' -token $token -DirectCommit $false -newBranchPrefix 'update-al-go-onpremise-deployer'
+          $update = Test-Path ".github\DeployToOnPremise.ps1"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/workflows/OnPremiseDeployer.yaml" -OutFile ".github\workflows\OnPremiseDeployer.yaml"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/.github/DeployToOnPremise.ps1" -OutFile ".github\DeployToOnPremise.ps1"
+          Write-Output "AL-Go OnPremise Deployer files downloaded."
+              
+          $yaml = [Yaml]::Load('.github\workflows\OnPremiseDeployer.yaml')
+          $workflowScheduleKey = "UpdateOnPremiseDeployerSchedule"
+          if ($repoSettings.Keys -contains $workflowScheduleKey) {
+            $yamlOn = $yaml.Get('on:/')
+            $yaml.Replace('on:/', $yamlOn.content+@('schedule:', "  - cron: '$($repoSettings."$workflowScheduleKey")'"))
+            $yaml.Save('.github\workflows\OnPremiseDeployer.yaml')
+          }
+
+          Write-Output "Committing changes..."
+          $commit_msg = "Install/Update AL-Go OnPremise Deployer"  
+          if ($update) {
+            $commit_msg = "Update AL-Go OnPremise Deployer"
+          }
+          CommitFromNewFolder -serverUrl $serverUrl -commitMessage $commit_msg -branch $branch
+        } catch {
+          Write-Error "An error occurred: $_"
+          exit 1
+        }

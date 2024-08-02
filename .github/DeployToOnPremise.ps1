@@ -1,23 +1,22 @@
 Param(
-    [Parameter(HelpMessage = "AL:Go Custom Deployment Script Parameters", Mandatory = $true)]
-    [hashtable] $parameters
-)
+    [Parameter(Mandatory = $true)]
+    [hashtable] $parameters,
+    [Parameter(HelpMessage = "We gather anonymized usage telemetry data to make the AL-Go OnPremise Deployer tool even better.", Mandatory = $false)]
+    [switch]$DoNotSendTelemetry)
 
 Write-Host
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host "       Welcome to AL-Go OnPremise Deployer      " -ForegroundColor Yellow
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host
-Write-Host "Find us on GitHub:" -ForegroundColor Green
+Write-Host "It's open source! Join us on GitHub:" -ForegroundColor Green
 Write-Host "www.github.com/akoniecki/AL-Go-OnPremise-Deployer" -ForegroundColor Blue
 Write-Host
 Write-Host "Give the GitHub project a star, share, and contribute!" -ForegroundColor Magenta
 Write-Host
 
 # AL:Go and BCContainerHelper helper libraries import
-Write-Host "AL-Go Custom Deployment script started - preparing..."
-
-# Define the base paths
+Write-Host "Importing AL:Go and BCContainerHelper helper libraries..."
 $helperBasePath = "..\..\..\_actions\microsoft\AL-Go-Actions\"
 $bcContainerHelperBasePath = "C:\ProgramData\BcContainerHelper\"
 
@@ -44,7 +43,6 @@ DownloadAndImportBcContainerHelper
 $bcHelperFunctionsPath = Join-Path -Path $bcContainerHelperPath.FullName -ChildPath "HelperFunctions.ps1"
 . $bcHelperFunctionsPath
 
-
 # Authentication: authContext
 Write-Host "Authenticating..."
 try {
@@ -63,7 +61,7 @@ Write-Host "Preparing automation API connection..."
 if (-not ($authContextParams.ContainsKey('apiBaseUrl') -and $authContextParams.apiBaseUrl)) {
     throw "AuthContext parameter ""apiBaseUrl"" does not exist or is empty."
 }
-$environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/')))/$($parameters.EnvironmentName)"
+$environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)"
 Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "environmentUrl=$environmentUrl"
 Write-Host "EnvironmentUrl: $environmentUrl"
 
@@ -78,14 +76,15 @@ if ($response.Status -ne "Ready") {
 }
 
 try {
-    # Use automation API for deployment
     $deployParameters = @{
-        "bcAuthContext" = $bcAuthContext
+        "bcAuthContext" = $authContext
         "environment" = $parameters.EnvironmentName
         "appFiles" = $parameters.Apps
         "schemaSyncMode" = "Add"
+        "companyName" = $parameters.companyName
     }
     $schemaSyncMode = $deployParameters.schemaSyncMode
+    $companyName = $deployParameters.companyName
 
     Write-Host "Publishing apps to environment using automation API"
 
@@ -94,10 +93,8 @@ try {
         return @{ "Authorization" = "Bearer $($authContext.AccessToken)" } 
     }
 
-    $newLine = @{} 
-
     $appFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
-    $appFiles = CopyAppFilesToFolder -appFiles $parametersDeploy.appFiles -folder $appFolder
+    $appFiles = CopyAppFilesToFolder -appFiles $deployParameters.appFiles -folder $appFolder
 
     $automationApiUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)/api/microsoft/automation/v2.0"
 
@@ -155,21 +152,21 @@ try {
                     Write-Host "already installed"
                 }
                 else {
-                    Write-Host @newLine "upgrading"
+                    Write-Host "upgrading"
                     $existingApp = $null
                 }
             }
             else {
-                Write-Host @newLine "installing"
+                Write-Host "installing"
                 $existingApp = $null
             }
         }
         else {
-            Write-Host @newLine "publishing and installing"
+            Write-Host "publishing and installing"
         }
         if (!$existingApp) {
             $extensionUpload = (Invoke-RestMethod -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionUpload" -Headers (GetAuthHeaders)).value
-            Write-Host @newLine "."
+            Write-Host "."
             if ($extensionUpload -and $extensionUpload.systemId) {
                 $extensionUpload = Invoke-RestMethod `
                     -Method Patch `
@@ -184,13 +181,13 @@ try {
                     -Headers ((GetAuthHeaders) + $jsonHeader) `
                     -Body ($body | ConvertTo-Json -Compress)
             }
-            Write-Host @newLine "."
+            Write-Host "."
             if ($null -eq $extensionUpload.systemId) {
                 throw "Unable to upload extension"
             }
             $fileBody = [System.IO.File]::ReadAllBytes($_)
 
-            # Custom Uri support added
+            # Custom Uri support added for OnPremise deployment
             $customUri = $extensionUpload.'extensionContent@odata.mediaEditLink'
             $customUriStartIndex = $customUri.IndexOf("/companies")
             $customUri = $customUri.Substring($customUriStartIndex)
@@ -202,12 +199,12 @@ try {
                 -Uri $customUri `
                 -Headers ((GetAuthHeaders) + $ifMatchHeader + $streamHeader) `
                 -Body $fileBody | Out-Null
-            Write-Host @newLine "."    
+            Write-Host "."    
             Invoke-RestMethod `
                 -Method Post `
                 -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))/Microsoft.NAV.upload" `
                 -Headers ((GetAuthHeaders) + $ifMatchHeader) | Out-Null
-            Write-Host @newLine "."    
+            Write-Host "."    
             $completed = $false
             $errCount = 0
             $sleepSeconds = 30
@@ -221,7 +218,7 @@ try {
                     $completed = $true
                     $extensionDeploymentStatuses | Where-Object { $_.publisher -eq $appJson.publisher -and $_.name -eq $appJson.name -and $_.appVersion -eq $appJson.version } | % {
                         if ($_.status -eq "InProgress") {
-                            Write-Host @newLine "."
+                            Write-Host "."
                             $completed = $false
                         }
                         elseif ($_.Status -eq "Unknown") {
@@ -258,13 +255,10 @@ catch {
 finally {
     $getExtensions = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensions" -UseBasicParsing
     $extensions = (ConvertFrom-Json $getExtensions.Content).value | Sort-Object -Property DisplayName
-    
     Write-Host
     Write-Host "Extensions after:"
     $extensions | ForEach-Object { Write-Host " - $($_.DisplayName), Version $($_.versionMajor).$($_.versionMinor).$($_.versionBuild).$($_.versionRevision), Installed=$($_.isInstalled)" }
 
-
     if (Test-Path $appFolder) {
         Remove-Item $appFolder -Recurse -Force -ErrorAction SilentlyContinue
     }
-}
