@@ -32,10 +32,10 @@
    - Manually copy the AL-Go OnPremise core files to your repository.
 
 ## 🛠️ Core Files
-- **`.github/DeployToOnPremise.ps1`**: Core script for handling on-premise environments deployment.
-- **`.github/workflows/OnPremiseDeployer.yaml`**: GitHub Action for installing/updating AL-Go OnPremise Deployer.
-- **`.github/DeployToOnPremiseCustom.ps1`**: Customizable deployment script for adding specific logic or debugging.
-- **`.github/AL-Go-Settings.ps1`**: Template configuration file including deployment settings for different types of environments.
+- **[`DeployToOnPremise.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremise.ps1)**: Core script for handling on-premise environments deployment.
+- **[`OnPremiseDeployer.yaml`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml)**: GitHub Action for installing/updating AL-Go OnPremise Deployer.
+- **[`DeployToOnPremiseCustom.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremiseCustom.ps1)**: Customizable deployment script for adding specific logic or debugging.
+- **[`AL-Go-Settings.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/AL-Go-Settings.ps1)**: Template configuration file including deployment settings for different types of environments.
 
 ## 📈 Usage
 To use the AL-Go OnPremise Deployer, follow these steps:
@@ -43,23 +43,23 @@ To use the AL-Go OnPremise Deployer, follow these steps:
 1. **Configure Your Environment:**
    - Update your `AL-Go-Settings.ps1` file to include the on-premise environments you wish to deploy to.
      ```json
-        "environments": [
-            "OnPremiseTest",
-            "OnPremiseProd (Production)",
-        ],
-        "DeployToOnPremiseTest": {
-            "EnvironmentType": "OnPremise",
-            "EnvironmentName": "test-onpremise"
-        },
-        "DeployToOnPremiseProd": {
-            "EnvironmentType": "OnPremise",
-            "EnvironmentName": "prod-onpremise"
-        }
-     ```  
-  - To activate/trigger AL-Go OnPremise Deployer during the deployment (CD) process, remember to put `"EnvironmentType": "OnPremise"` inside your DeployTo<YourEnvironmentName> setting.
-  
+     "environments": [
+         "OnPremiseTest",
+         "OnPremiseProd (Production)"
+     ],
+     "DeployToOnPremiseTest": {
+         "EnvironmentType": "OnPremise",
+         "EnvironmentName": "test-onpremise"
+     },
+     "DeployToOnPremiseProd": {
+         "EnvironmentType": "OnPremise",
+         "EnvironmentName": "prod-onpremise"
+     }
+     ```
+   - To activate/trigger AL-Go OnPremise Deployer during the deployment (CD) process, remember to put `"EnvironmentType": "OnPremise"` inside your DeployTo<YourEnvironmentName> setting.
+
 2. **Configure AuthContext secret for the environment:**
-TODO
+   - TODO
 
 ## 🌟 Contributing
 We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) to get started and contribute to the project.
