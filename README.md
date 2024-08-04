@@ -7,7 +7,7 @@
 
 [![CI/CD Status](https://img.shields.io/github/actions/workflow/status/akoniecki/AL-Go-OnPremise-Deployer/CICD.yml)](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/actions)
 [![License](https://img.shields.io/github/license/akoniecki/AL-Go-OnPremise-Deployer)](LICENSE)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 ## 🚀 Features
 - **On-Premise Deployment:** Easily deploy Business Central's AL extensions to on-premise environments.
@@ -38,21 +38,41 @@
 - **`.github/AL-Go-Settings.ps1`**: Template configuration file including deployment settings for different types of environments.
 
 ## 📈 Usage
---- TODO ---
+To use the AL-Go OnPremise Deployer, follow these steps:
+
+1. **Configure Your Environment:**
+   - Update your `AL-Go-Settings.ps1` file to include the on-premise environments you wish to deploy to.
+     ```json
+        "environments": [
+            "OnPremiseTest",
+            "OnPremiseProd (Production)",
+        ],
+        "DeployToOnPremiseTest": {
+            "EnvironmentType": "OnPremise",
+            "EnvironmentName": "test-onpremise"
+        },
+        "DeployToOnPremiseProd": {
+            "EnvironmentType": "OnPremise",
+            "EnvironmentName": "prod-onpremise"
+        }
+     ```   
+2. **Configure AuthContext secret for the environment:**
+TODO
 
 ## 🌟 Contributing
-Please read our [Contributing Guide](CONTRIBUTING.md) to get started and contribute to the project.
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) to get started and contribute to the project.
 
 ## 📜 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 💬 Feedback & Issues
-Don't hesitate to share your feedback and report issues here: [Issues](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/issues)
+Don't hesitate to share your feedback and report [issues here](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/issues).
 
 ## 🙌 Acknowledgements
-- [AL-Go for GitHub](https://github.com/microsoft/AL-Go)
-- [BCContainerHelper](https://github.com/microsoft/navcontainerhelper)
-- [ALOps-External-Deployer](https://github.com/HodorNV/ALOps-External-Deployer)
+- **Projects:**
+  - [AL-Go for GitHub](https://github.com/microsoft/AL-Go): For providing the modern CI/CD foundational framework for Microsoft Dynamics 365 Business Central.
+  - [BCContainerHelper](https://github.com/microsoft/navcontainerhelper): For invaluable tools and helper libraries.
+  - [ALOps-External-Deployer](https://github.com/HodorNV/ALOps-External-Deployer): For enabling Automation API on on-premise Business Central instances.
 
 ## 📧 Contact
 Feel free to reach out directly at [akoniecki@pm.me](mailto:akoniecki@pm.me) or connect on [LinkedIn](https://www.linkedin.com/in/akoniecki/).
