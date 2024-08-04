@@ -9,6 +9,17 @@
 [![License](https://img.shields.io/github/license/akoniecki/AL-Go-OnPremise-Deployer)](LICENSE)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
+## Table of Contents
+- [Features](#-features)
+- [Installation Methods](#-installation-methods)
+- [Core Files](#-core-files)
+- [Usage](#-usage)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Feedback & Issues](#-feedback--issues)
+- [Acknowledgements](#-acknowledgements)
+- [Contact](#-contact)
+
 ## 🚀 Features
 - **On-Premise Deployment:** Easily deploy Business Central's AL extensions to on-premise environments.
 - **AL-Go for GitHub Integration:** Seamless integration with [AL-Go for GitHub](https://github.com/microsoft/AL-Go) using the built-in custom deployment scripts feature.
@@ -32,10 +43,10 @@
    - Manually copy the AL-Go OnPremise core files to your repository.
 
 ## 🛠️ Core Files
-- **[`DeployToOnPremise.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremise.ps1)**: Core script for handling on-premise environments deployment.
-- **[`OnPremiseDeployer.yaml`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml)**: GitHub Action for installing/updating AL-Go OnPremise Deployer.
-- **[`DeployToOnPremiseCustom.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremiseCustom.ps1)**: Customizable deployment script for adding specific logic or debugging.
-- **[`AL-Go-Settings.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/AL-Go-Settings.ps1)**: Template configuration file including deployment settings for different types of environments.
+- **[`.github/DeployToOnPremise.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremise.ps1)**: Core script for handling on-premise environments deployment.
+- **[`.github/workflows/OnPremiseDeployer.yaml`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml)**: GitHub Action for installing/updating AL-Go OnPremise Deployer.
+- **[`.github/DeployToOnPremiseCustom.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremiseCustom.ps1)**: Customizable deployment script for adding specific logic or debugging.
+- **[`.github/AL-Go-Settings.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/AL-Go-Settings.ps1)**: Template configuration file including deployment settings for different types of environments.
 
 ## 📈 Usage
 To use the AL-Go OnPremise Deployer, follow these steps:
