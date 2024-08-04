@@ -15,6 +15,28 @@ Write-Host
 Write-Host "Give the GitHub project a star, share, and contribute!" -ForegroundColor Magenta
 Write-Host
 
+function Send-TelemetryData {
+    param (
+        [string]$status
+    )
+    $webhookUrl = "" 
+    $hash = [System.Security.Cryptography.SHA256]::Create()
+    $githubUserHash = [BitConverter]::ToString($hash.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($env:GITHUB_ACTOR))) -replace '-', ''
+    $repositoryHash = [BitConverter]::ToString($hash.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($env:GITHUB_REPOSITORY))) -replace '-', ''
+    $payload = @{ githubUser = $githubUserHash; repository = $repositoryHash; status = $status } | ConvertTo-Json
+    try { 
+        #Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType 'application/json' -Body $payload 
+        Write-Host "[ DEBUG ] Telemetry payload sent: $payload"
+    } catch { 
+        Write-Host "Failed to send usage statistics: $($_.Exception.Message)" 
+    }
+}
+
+# Send usage statistics (data anonymized)
+if (-not $DoNotSendTelemetry) {
+    Send-TelemetryData -status "started"
+}
+    
 # AL:Go and BCContainerHelper helper libraries import
 Write-Host "Importing AL:Go and BCContainerHelper helper libraries..."
 $helperBasePath = "..\..\..\_actions\microsoft\AL-Go-Actions\"
@@ -246,10 +268,15 @@ try {
             }
         }
     }
-    
+    if (-not $DoNotSendTelemetry) {
+        Send-TelemetryData -status "completed"
+    }
 }
 catch {
     OutputError -message "Deploying to $($deploymentSettings.EnvironmentName) failed.$([environment]::Newline) $($_.Exception.Message)"
+    if (-not $DoNotSendTelemetry) {
+        Send-TelemetryData -status "failed"
+    }
     exit
 }
 finally {
@@ -262,3 +289,4 @@ finally {
     if (Test-Path $appFolder) {
         Remove-Item $appFolder -Recurse -Force -ErrorAction SilentlyContinue
     }
+}
