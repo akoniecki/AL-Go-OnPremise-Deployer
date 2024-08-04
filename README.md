@@ -10,15 +10,15 @@
 
 ## 🚀 Features
 - **On-Premise Deployment:** Easily deploy Business Central's AL extensions to on-premise environments.
-- **AL-Go for Github:** Seamless integration with AL-Go by custom deployment scripts build-in feature.
-- **Automation API:** No Github Agent required. Modern deployment process powered by Business Central's Automation API.
-- **Easy installation:** Add OnPremiseDeployer workflow file to your repository and to install or update AL-Go OnPremise Deployer.
-- **Automatic updates:** "UpdateOnPremiseDeployerSchedule" setting to support scheduled automatic updates.
+- **AL-Go for Github:** Seamless integration with [AL-Go for GitHub](https://github.com/microsoft/AL-Go), enabled by "custom deployment scripts" build-in feature.
+- **Automation API:** No GitHub Agent installation required. The modern deployment process uses Business Central's Automation API.
+- **Easy installation:** Simply add [OnPremiseDeployer.yml](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml) workflow file to your repository and run it.
+- **Automatic updates:** New "UpdateOnPremiseDeployerSchedule" setting to enable automatic updates schedule.
 
 ## 📥 Installation Methods
 1. Copy the "Install/Update AL-Go OnPremise Deployer" workflow definition file to your repository.
    ```bash
-   https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/mail/.github/workflows/OnPremiseDeployer.yml
+   https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml
    ```
    Note: keep the source filename "OnPremiseDeployer.yml" and ensure the correct path: <your-repository>/.github/workflows
    Navigate to GitHub Actions in your repository, choose and run "Install or Update AL-Go OnPremise Deployer" workflow
@@ -30,7 +30,7 @@
 
 ## 🛠️ Core Files
 - **`.github/DeployToOnPremise.ps1`**: The core script for deploying to on-premise environments.
-- **`.github/workflows/OnPremiseDeployer.yml`
+- **`.github/workflows/OnPremiseDeployer.yaml`
 - **`.github/DeployToOnPremiseCustom.ps1`**: Customizable deployment script to add specific logic or for debugging.
 - **`.github/AL-Go-Settings.ps1`**: Template configuration file, including deployment settings for different types of environments
 
