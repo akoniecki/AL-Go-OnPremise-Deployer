@@ -55,7 +55,9 @@ To use the AL-Go OnPremise Deployer, follow these steps:
             "EnvironmentType": "OnPremise",
             "EnvironmentName": "prod-onpremise"
         }
-     ```   
+     ```  
+  - To activate/trigger AL-Go OnPremise Deployer during the deployment (CD) process, remember to put `"EnvironmentType": "OnPremise"` inside your DeployTo<YourEnvironmentName> setting.
+  
 2. **Configure AuthContext secret for the environment:**
 TODO
 
