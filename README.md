@@ -22,11 +22,11 @@
 - [Contact](#-contact)
 
 ## 🚀 Features
-    - **On-Premise Deployment:** Easily deploy Business Central's AL extensions to on-premise environments.
-    - **AL-Go for GitHub Integration:** Seamless integration with [AL-Go for GitHub](https://github.com/microsoft/AL-Go) using the built-in custom deployment scripts feature.
-    - **Automation API:** No GitHub Agent installation required. The modern deployment process utilizes Business Central's Automation API.
-    - **Easy Installation:** Simply add the [OnPremiseDeployer.yaml](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml) workflow file to your AL-Go repository and run it.
-    - **Automatic Updates:** New "UpdateOnPremiseDeployerSchedule" setting in `AL-Go-Settings.json` to enable an automatic update schedule.
+- **On-Premise Deployment:** Easily deploy Business Central's AL extensions to on-premise environments.
+- **AL-Go for GitHub Integration:** Seamless integration with [AL-Go for GitHub](https://github.com/microsoft/AL-Go) using the built-in custom deployment scripts feature.
+- **Automation API:** No GitHub Agent installation required. The modern deployment process utilizes Business Central's Automation API.
+- **Easy Installation:** Simply add the [OnPremiseDeployer.yaml](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml) workflow file to your AL-Go repository and run it.
+- **Automatic Updates:** New "UpdateOnPremiseDeployerSchedule" setting in `AL-Go-Settings.json` to enable an automatic update schedule.
 
 ## 📥 Installation Methods
 1. **Using the Workflow Definition File:**
@@ -47,12 +47,12 @@
     - Just copy the AL-Go OnPremise **core files** to your AL-Go repository. Additionally, you can include our **additional files**, such as setting template for a quick start or customizable deployment script for more advanced cases.
 
 ## 🛠️ Core Files
-    - **[`.github/DeployToOnPremise.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremise.ps1)**: Core script for handling on-premise environments deployment.
-    - **[`.github/workflows/OnPremiseDeployer.yaml`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml)**: GitHub Action for installing/updating AL-Go OnPremise Deployer.
+- **[`.github/DeployToOnPremise.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremise.ps1)**: Core script for handling on-premise environments deployment.
+- **[`.github/workflows/OnPremiseDeployer.yaml`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml)**: GitHub Action for installing/updating AL-Go OnPremise Deployer.
 
 ## 🧰 Additional Files
-    - **[`.github/DeployToOnPremiseCustom.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremiseCustom.ps1)**: Customizable deployment script for adding specific logic or debugging.
-    - **[`.github/AL-Go-Settings.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/AL-Go-Settings.ps1)**: Template configuration file including deployment settings for different types of environments.
+- **[`.github/DeployToOnPremiseCustom.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremiseCustom.ps1)**: Customizable deployment script for adding specific logic or debugging.
+- **[`.github/AL-Go-Settings.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/AL-Go-Settings.ps1)**: Template configuration file including deployment settings for different types of environments.
 
 ## 📈 Usage
 To use the AL-Go OnPremise Deployer, follow these steps:
@@ -153,10 +153,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Don't hesitate to share your feedback and report [issues here](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/issues).
 
 ## 🙌 Acknowledgements
-    - **Projects:**
-        - [AL-Go for GitHub](https://github.com/microsoft/AL-Go): For providing the modern CI/CD foundational framework for Microsoft Dynamics 365 Business Central.
-        - [BCContainerHelper](https://github.com/microsoft/navcontainerhelper): For invaluable tools and helper libraries.
-        - [ALOps-External-Deployer](https://github.com/HodorNV/ALOps-External-Deployer): For enabling Automation API on on-premise Business Central instances.
+- **Projects:**
+    - [AL-Go for GitHub](https://github.com/microsoft/AL-Go): For providing the modern CI/CD foundational framework for Microsoft Dynamics 365 Business Central.
+    - [BCContainerHelper](https://github.com/microsoft/navcontainerhelper): For invaluable tools and helper libraries.
+    - [ALOps-External-Deployer](https://github.com/HodorNV/ALOps-External-Deployer): For enabling Automation API on on-premise Business Central instances.
 
 ## 📧 Contact
 Feel free to reach out directly at [akoniecki@pm.me](mailto:akoniecki@pm.me) or connect on [LinkedIn](https://www.linkedin.com/in/akoniecki/).
