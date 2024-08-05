@@ -56,6 +56,7 @@
             "UpdateOnPremiseDeployerSchedule": "0 19 * * 2"
         }
         ```
+    - Run the "Install or Update AL-Go OnPremise Deployer" workflow to apply scheduler changes.
 
 2. **Configure Environments:**
     - Update `AL-Go-Settings.ps1`:
@@ -96,7 +97,7 @@
                 "apiBaseUrl": "<api-base-url>"
             }
         ```
-    - `apiBaseUrl` parameter is specific to AL-Go OnPremise Deployer. It should be the URL of your on-premise Business Central instance with the Automation API enabled and exposed.
+    - `apiBaseUrl` parameter is specific to AL-Go OnPremise Deployer and should be manuallt added to the authContext JSON. It should be the URL to on-premise Business Central instance endpoint with the Automation API enabled and exposed.
     - Add authContext secrets to GitHub Action secrets or connected Azure Key Vault. Separate entry is required for each environment.
         ```markdown
             OnPremiseTest_authContext
@@ -115,23 +116,14 @@
         ```
 
 ## 📊 Usage Statistics
-To help us improve AL-Go OnPremise Deployer, we gather anonymized usage statistics. Here’s what we collect and why:
+To improve AL-Go OnPremise Deployer, we gather anonymized usage statistics:
 
-1. **What We Collect:**
-    - **Anonymized User Data:** A hash of your GitHub username to track unique users without revealing your identity.
-    - **Repository Information:** A hash of your repository name to understand the spread and usage across different projects.
-    - **Status Information:** Deployment status (e.g., started, completed, failed) to monitor the success and failure rates of deployments.
-
-2. **Why We Collect It:**
-    - **Improve Functionality:** Understand how the tool is being used and identify areas for improvement.
-    - **Monitor Performance:** Track success and failure rates to ensure reliable performance.
-    - **Guide Development:** Prioritize features and enhancements based on actual usage patterns.
-
-3. **Opting Out:**
-    - If you prefer not to send usage statistics, you can disable telemetry by adding the `-DoNotSendTelemetry` switch when running the deployment script. In such case consider using customizable script [`DeployToOnPremiseCustom.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremiseCustom.ps1).
-        ```powershell
-            .github\DeployToOnPremise.ps1 -parameters $parameters -DoNotSendTelemetry
-        ```
+- **What We Collect:** Anonymized user data (hashed GitHub username), repository information (hashed repository name), and deployment status (e.g., started, completed, failed).
+- **Why We Collect It:** To enhance functionality, monitor performance, and guide development.
+- **Opting Out:** Disable telemetry by adding `-DoNotSendTelemetry` when running the script. Consider using the customizable script [`DeployToOnPremiseCustom.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremiseCustom.ps1):
+    ```powershell
+        .github\DeployToOnPremise.ps1 -parameters $parameters -DoNotSendTelemetry
+    ```
 
 ## 🌟 Contributing
 We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) to get started and contribute to the project.
