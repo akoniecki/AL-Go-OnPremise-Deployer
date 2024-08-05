@@ -63,7 +63,7 @@ jobs:
     
           # Get the latest AL-Go OnPremise Deployer
           Write-Output "Downloading the latest AL-Go OnPremise Deployer files..."
-          $serverUrl, $branch = CloneIntoNewFolder -actor $ENV:GITHUB_ACTOR -token $token -DirectCommit $false -newBranchPrefix 'update-al-go-onpremise-deployer'
+          $serverUrl, $branch = CloneIntoNewFolder -actor $ENV:GITHUB_ACTOR -token $token -DirectCommit $true -newBranchPrefix 'update-al-go-onpremise-deployer'
           foreach ($file in $filesToDownload) {
             $outputPath = ".github\" + $file.Replace("/", "\")
             Invoke-WebRequest -Uri ($deployerBaseUrl + $file) -OutFile $outputPath
