@@ -120,4 +120,19 @@ To use the AL-Go OnPremise Deployer, follow these steps:
      ```
 
 ## 🌟 Contributing
-We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) to get started and contribute to the project.
+
+## 📜 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 💬 Feedback & Issues
+Don't hesitate to share your feedback and report [issues here](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/issues).
+
+## 🙌 Acknowledgements
+- **Projects:**
+  - [AL-Go for GitHub](https://github.com/microsoft/AL-Go): For providing the modern CI/CD foundational framework for Microsoft Dynamics 365 Business Central.
+  - [BCContainerHelper](https://github.com/microsoft/navcontainerhelper): For invaluable tools and helper libraries.
+  - [ALOps-External-Deployer](https://github.com/HodorNV/ALOps-External-Deployer): For enabling Automation API on on-premise Business Central instances.
+
+## 📧 Contact
+Feel free to reach out directly at [akoniecki@pm.me](mailto:akoniecki@pm.me) or connect on [LinkedIn](https://www.linkedin.com/in/akoniecki/).
