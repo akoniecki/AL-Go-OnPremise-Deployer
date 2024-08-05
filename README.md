@@ -136,10 +136,10 @@ To help us improve AL-Go OnPremise Deployer, we gather anonymized usage statisti
 ## 🌟 Contributing
 We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) to get started and contribute to the project.
 
-## License
+## 📜 License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file.
 
-## Feedback & Issues
+## 💬 Feedback & Issues
 Share feedback and report issues [here](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/issues).
 
 ## 🙌 Acknowledgements
