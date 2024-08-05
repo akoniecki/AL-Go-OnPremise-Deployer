@@ -13,7 +13,7 @@
 - [Features](#-features)
 - [Installation Methods](#-installation-methods)
 - [Core Files](#-core-files)
-- [Additional Files](#additional-files)
+- [Additional Files](#-additional-files)
 - [Usage](#-usage)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -30,7 +30,7 @@
 
 ## 📥 Installation
 1. **Using the Workflow File:**
-    - Download and place the [OnPremiseDeployer.yaml](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml) file in `.github/workflows` path of you AL-Go repository.
+    - Download and place the [OnPremiseDeployer.yaml](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/workflows/OnPremiseDeployer.yaml) file in the `.github/workflows` path of your AL-Go repository.
     - Ensure you have a valid `ghWorkflowToken` secret available in your AL-Go repository. See [AL-Go docs](https://github.com/microsoft/AL-Go/blob/main/Scenarios/UpdateAlGoSystemFiles.md) for more information.
     - Run the "Install or Update AL-Go OnPremise Deployer" workflow in GitHub Actions.
 
@@ -61,6 +61,7 @@
 2. **Configure Environments:**
     - Update `AL-Go-Settings.ps1`:
         ```json
+        {
             "environments": [
                 "OnPremiseTest",
                 "OnPremiseProd (Production)"
@@ -73,9 +74,11 @@
                 "EnvironmentType": "OnPremise",
                 "EnvironmentName": "prod-onpremise"
             }
+        }
         ```
-    - The setting that links AL-Go to custom deployment script is `"EnvironmentType": "OnPremise"`. If you want to use the customizable deployment script `DeployTo**OnPremiseCustom**.ps1`, use the `"EnvironmentType": "**OnPremiseCustom**"`.
+    - The setting that links AL-Go to the custom deployment script is `"EnvironmentType": "OnPremise"`. If you want to use the customizable deployment script `DeployToOnPremiseCustom.ps1`, use the `"EnvironmentType": "OnPremiseCustom"`:
         ```json
+        {
             "environments": [
                 "OnPremiseTestCustom"
             ],
@@ -84,31 +87,32 @@
                 "EnvironmentName": "test-onpremise",
                 "ContinuousDeployment": false 
             }
+        }
         ```
 
 3. **authContext Secrets:**
-    - Prepare `authContext` JSON, include **apiBaseUrl** parameter
+    - Prepare `authContext` JSON, including the **apiBaseUrl** parameter:
         ```json
-            {
-                "clientId": "<client-id>",
-                "clientSecret": "<client-secret>",
-                "tenantId": "<tenant-id>",
-                "environment": "<environment-name>",
-                "apiBaseUrl": "<api-base-url>"
-            }
+        {
+            "clientId": "<client-id>",
+            "clientSecret": "<client-secret>",
+            "tenantId": "<tenant-id>",
+            "environment": "<environment-name>",
+            "apiBaseUrl": "http://your-onprem-instance-api-base-url/"
+        }
         ```
-    - `apiBaseUrl` parameter is specific to AL-Go OnPremise Deployer and should be manuallt added to the authContext JSON. It should be the URL to on-premise Business Central instance endpoint with the Automation API enabled and exposed.
-    - Add authContext secrets to GitHub Action secrets or connected Azure Key Vault. Separate entry is required for each environment.
+    - `apiBaseUrl` is specific to AL-Go OnPremise Deployer and should be manually added to the `authContext` JSON. It should be the URL to  on-premise Business Central instance with the Automation API enabled and exposed.
+    - Add `authContext` secrets to GitHub Action secrets or connected Azure Key Vault. Separate entries are required for each environment:
         ```markdown
-            OnPremiseTest_authContext
-            OnPremiseProd_authContext
-            DeployToOnPremiseTestCustom_authContext
+        OnPremiseTest_authContext
+        OnPremiseProd_authContext
+        DeployToOnPremiseTestCustom_authContext
         ```
 
-5. **Enable Automation API on Your On-Premise BC Instances:**
+4. **Enable Automation API on Your On-Premise BC Instances:**
     - AL-Go OnPremise Deployer fully supports [ALOps-External-Deployer](https://github.com/HodorNV/ALOps-External-Deployer).
-    - To enable Automation API on your BC instances, follow the instructions provided in their [README](https://github.com/HodorNV/ALOps-External-Deployer).
-    - Remember to install ALOps-External-Deployer on each BC instance you want to deploy to.
+    - To enable the Automation API on your BC instances, follow the instructions in their [README](https://github.com/HodorNV/ALOps-External-Deployer).
+    - Install ALOps-External-Deployer on each BC instance you want to deploy to
         ```bash
             install-module ALOps.ExternalDeployer -Force
             import-module ALOps.ExternalDeployer 
