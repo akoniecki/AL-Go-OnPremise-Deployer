@@ -37,7 +37,7 @@
     - Ensure the filename is `OnPremiseDeployer.yaml` and place it in the correct path within your AL-Go repository: `<your-repository>/.github/workflows`
     - Ensure the `ghWorkflowToken` secret is available for your AL-Go repository (more info in the Usage section).
     - Navigate to GitHub Actions in your repository and run the "Install or Update AL-Go OnPremise Deployer" workflow.
-    - The workflow will install or update AL-Go OnPremise Deployer core files and create a Pull Request with changes that you need to review and merge.
+    - The workflow will install or update AL-Go OnPremise Deployer core files and direct-commit the changes.
     - AL-Go OnPremise Deployer's additional files need to be added manually if needed, and these files won't be updated/overwritten by the update workflow.
 
 2. **Using the Repository Template:**
