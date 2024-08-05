@@ -119,6 +119,25 @@ To use the AL-Go OnPremise Deployer, follow these steps:
      Install-ALOpsExternalDeployer -ServerInstance test-onpremise
      ```
 
+## 📊 Usage Statistics
+To help us improve AL-Go OnPremise Deployer, we gather anonymized usage statistics. Here’s what we collect and why:
+
+1. **What We Collect:**
+   - **Anonymized User Data:** A hash of your GitHub username to track unique users without revealing your identity.
+   - **Repository Information:** A hash of your repository name to understand the spread and usage across different projects.
+   - **Status Information:** Deployment status (e.g., started, completed, failed) to monitor the success and failure rates of deployments.
+
+2. **Why We Collect It:**
+   - **Improve Functionality:** Understand how the tool is being used and identify areas for improvement.
+   - **Monitor Performance:** Track success and failure rates to ensure reliable performance.
+   - **Guide Development:** Prioritize features and enhancements based on actual usage patterns.
+
+3. **Opting Out:**
+   - If you prefer not to send usage statistics, you can disable telemetry by adding the `-DoNotSendTelemetry` switch when running the deployment script. In such case consider using customizable script [`DeployToOnPremiseCustom.ps1`](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/blob/main/.github/DeployToOnPremiseCustom.ps1).
+     ```powershell
+     .github\DeployToOnPremise.ps1 -parameters $parameters -DoNotSendTelemetry
+     ```
+
 ## 🌟 Contributing
 We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) to get started and contribute to the project.
 
