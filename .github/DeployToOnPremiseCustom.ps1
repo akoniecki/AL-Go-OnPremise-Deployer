@@ -20,7 +20,8 @@ foreach ($key in $parameters.Keys) {
         Write-Output "$key :"
         foreach ($authKey in $value.Keys) {
             Write-Output "  $authKey : $($value[$authKey])"
-        }    } 
+        }   
+    } 
     if ($value -is [System.Collections.IEnumerable] -and -not ($value -is [string])) {
         Write-Output "$key :"
         foreach ($item in $value) {
