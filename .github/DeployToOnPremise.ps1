@@ -49,14 +49,17 @@ $alGoActionsPath = Get-ChildItem -Path $helperBasePath -Directory |
 if ($null -eq $alGoActionsPath) {
     throw "AL-Go-Actions directory not found."
 }
-Write-Host "AL-Go Actions path: $alGoActionsPath"
+Write-Host "AL-Go Actions path: $($alGoActionsPath.Fullname)"
+
+$versionRegex = '^\d+\.\d+\.\d+$'
 $bcContainerHelperPath = Get-ChildItem -Path $bcContainerHelperBasePath -Directory | 
+    Where-Object { $_.Name -match $versionRegex } |
     Sort-Object Name -Descending | 
     Select-Object -First 1
 if ($null -eq $bcContainerHelperPath) {
     throw "BcContainerHelper directory not found."
 }
-Write-Host "BcContainerHelper path: $bcContainerHelperPath"
+Write-Host "BcContainerHelper path: $($bcContainerHelperPath.FullName)"
 
 # Importing helpers
 $helperPath = Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1"
