@@ -76,7 +76,7 @@ try {
         throw "AuthContext parameter ""apiBaseUrl"" does not exist or is empty."
     }
     $environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)"
-    $authContextParams["scopes"] = $environmentUrl
+    #$authContextParams["scopes"] = $environmentUrl
     $authContext = New-BcAuthContext @authContextParams
     if ($null -eq $authContext) {
         throw "AuthContext could not be created."
@@ -88,6 +88,7 @@ try {
 
 # Preparing Automation API connection
 Write-Host "Preparing Automation API connection..."
+Write-Host $environmentUrl 
 $environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)"
 Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "environmentUrl=$environmentUrl"
 Write-Host "EnvironmentUrl: $environmentUrl"

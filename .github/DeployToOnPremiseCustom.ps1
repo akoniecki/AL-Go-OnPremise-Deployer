@@ -21,15 +21,16 @@ foreach ($key in $parameters.Keys) {
         foreach ($authKey in $value.Keys) {
             Write-Output "  $authKey : $($value[$authKey])"
         }   
-    } 
-    if ($value -is [System.Collections.IEnumerable] -and -not ($value -is [string])) {
-        Write-Output "$key :"
-        foreach ($item in $value) {
-            Write-Output "  - $item"
-        }
     } else {
-        Write-Output "$key : $value"
-    }
+        if ($value -is [System.Collections.IEnumerable] -and -not ($value -is [string])) {
+            Write-Output "$key :"
+            foreach ($item in $value) {
+                Write-Output "  - $item"
+            }
+        } else {
+            Write-Output "$key : $value"
+        }
+    } 
 }
 
 #
@@ -46,7 +47,7 @@ foreach ($key in $parameters.Keys) {
     $ALGoOnPremiseDeployerScript = Join-Path $ENV:GITHUB_WORKSPACE ".github/DeployToOnPremise.ps1"
     if (Test-Path $ALGoOnPremiseDeployerScript) {
         Write-Host "Deployment process handled by AL-Go OnPremise Deployer started."
-        . $ALGoOnPremiseDeployerScript -parameters $parameters
+        #. $ALGoOnPremiseDeployerScript -parameters $parameters
         # To disable telemetry: . $ALGoOnPremiseDeployerScript -parameters $parameters -DoNotSendTelemetry
     } else {
         throw "AL-Go OnPremise Deployer files are missing. Run Install/Update workflow and try again"
