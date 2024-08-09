@@ -43,14 +43,14 @@ jobs:
           Write-Output "Starting AL-Go OnPremise Deployer installation/update..."
         
           # Define paths and URLs
-          $helperBasePath = "D:\a\_actions\microsoft\AL-Go-Actions\"
+          $helperBasePath = "..\..\_actions\microsoft\AL-Go-Actions\"
           $deployerBaseUrl = "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/"
           $filesToDownload = @(".github/workflows/OnPremiseDeployer.yaml", ".github/DeployToOnPremise.ps1")
     
           # Import helpers
           $alGoActionsPath = Get-ChildItem -Path $helperBasePath -Directory | Sort-Object Name -Descending | Select-Object -First 1
           if ($null -eq $alGoActionsPath) { throw "AL-Go-Actions directory not found." }
-          . (Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1")
+          . (Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1" -Resolve)
           Invoke-Expression -Command (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/AL-Go-Actions/main/CheckForUpdates/yamlclass.ps1").Content
     
           # Validate token

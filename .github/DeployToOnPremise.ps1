@@ -39,7 +39,7 @@ if (-not $DoNotSendTelemetry) {
     
 # AL:Go and BCContainerHelper helper libraries import
 Write-Host "Importing AL:Go and BCContainerHelper helper libraries..."
-$helperBasePath = "..\..\..\_actions\microsoft\AL-Go-Actions\"
+$helperBasePath = "..\..\_actions\microsoft\AL-Go-Actions\"
 $bcContainerHelperBasePath = "C:\ProgramData\BcContainerHelper\"
 
 # Find the latest versions of required heplers
