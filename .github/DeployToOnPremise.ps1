@@ -86,8 +86,8 @@ try {
     throw "Authentication failed. $([environment]::Newline) $($_.exception.message)"
 }
 
-# Preparing automation API connection
-Write-Host "Preparing automation API connection..."
+# Preparing Automation API connection
+Write-Host "Preparing Automation API connection..."
 $environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)"
 Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "environmentUrl=$environmentUrl"
 Write-Host "EnvironmentUrl: $environmentUrl"
@@ -100,7 +100,7 @@ if ($response.Status -ne "Ready") {
     OutputError -message "Environment with name $($parameters.EnvironmentName) is not ready (Status is $($response.Status))."
     exit
 }
-
+Write-Host "Automation API ready."
 try {
     $deployParameters = @{
         "bcAuthContext" = $authContext

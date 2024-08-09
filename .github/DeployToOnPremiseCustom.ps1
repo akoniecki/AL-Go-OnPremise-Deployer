@@ -12,9 +12,12 @@ Param(
 
 
 # [ DEBUG ] Display all contents of the $parameters hashtable
-Write-Output "[ DEBUG ] Displaying all contents of the AL:Go Custom Deployment `\$parameters` hashtable:"
+Write-Output "[ DEBUG ] Displaying all contents of the AL:Go Custom Deployment parameters` hashtable:"
 foreach ($key in $parameters.Keys) {
     $value = $parameters[$key]
+    if ($key -eq "AuthContext") {
+        $value = $value | ConvertFrom-Json | ConvertTo-HashTable 
+    } 
     if ($value -is [System.Collections.IEnumerable] -and -not ($value -is [string])) {
         Write-Output "$key :"
         foreach ($item in $value) {
