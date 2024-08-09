@@ -43,7 +43,7 @@ jobs:
           Write-Output "Starting AL-Go OnPremise Deployer installation/update..."
         
           # Define paths and URLs
-          $helperBasePath = "..\..\_actions\microsoft\AL-Go-Actions\"
+          $helperBasePath = "..\_actions\microsoft\AL-Go-Actions\"
           $deployerBaseUrl = "https://raw.githubusercontent.com/akoniecki/AL-Go-OnPremise-Deployer/main/"
           $filesToDownload = @(".github/workflows/OnPremiseDeployer.yaml", ".github/DeployToOnPremise.ps1")
     
