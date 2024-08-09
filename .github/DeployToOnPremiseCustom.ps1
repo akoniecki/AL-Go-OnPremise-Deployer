@@ -17,7 +17,10 @@ foreach ($key in $parameters.Keys) {
     $value = $parameters[$key]
     if ($key -eq "AuthContext") {
         $value = $value | ConvertFrom-Json | ConvertTo-HashTable 
-    } 
+        Write-Output "$key :"
+        foreach ($authKey in $value.Keys) {
+            Write-Output "  $authKey : $($value[$authKey])"
+        }    } 
     if ($value -is [System.Collections.IEnumerable] -and -not ($value -is [string])) {
         Write-Output "$key :"
         foreach ($item in $value) {
