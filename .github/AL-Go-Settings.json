@@ -2,7 +2,7 @@
   "type": "PTE",
   "templateUrl": "https://github.com/microsoft/AL-Go-PTE@main",
   "UpdateOnPremiseDeployerSchedule": "0 19 * * 2",
-  "UpdateGitHubGoSystemFilesSchedule": "0 18 * * 2", 
+  "UpdateGitHubGoSystemFilesSchedule": "0 18 * * 2",
   "CICDSchedule": "0 20 * * 2",
   "environments": [
     "OnPremiseTest",
@@ -15,7 +15,7 @@
   "DeployToOnPremiseTestCustom": {
     "EnvironmentType": "OnPremiseCustom",
     "EnvironmentName": "bcserverrest",
-    "ContinuousDeployment": false 
-  }
-
+    "ContinuousDeployment": false
+  },
+  "templateSha": "81cff3d03e8fe6b88ee3fc0848594bfd4d9039a4"
 }
