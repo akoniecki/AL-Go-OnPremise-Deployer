@@ -65,7 +65,7 @@ Write-Host "BcContainerHelper path: $($bcContainerHelperPath.FullName)"
 $helperPath = Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1"
 . $helperPath
 DownloadAndImportBcContainerHelper
-$bcHelperFunctionsPath = Join-Path -Path $bcContainerHelperPath.FullName -ChildPath "HelperFunctions.ps1"
+$bcHelperFunctionsPath = Join-Path -Path $bcContainerHelperPath.FullName -ChildPath "BcContainerHelper\HelperFunctions.ps1"
 . $bcHelperFunctionsPath
 
 # Authentication: authContext
