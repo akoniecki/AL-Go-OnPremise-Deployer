@@ -5,25 +5,16 @@
   "UpdateGitHubGoSystemFilesSchedule": "0 18 * * 2", 
   "CICDSchedule": "0 20 * * 2",
   "environments": [
-    "SaaSTest",
     "OnPremiseTest",
-    "OnPremiseProd (Production)",
     "OnPremiseTestCustom"
   ],
-  "DeployToSaaSTest": {
-    "EnvironmentName": "test"
-  },
   "DeployToOnPremiseTest": {
     "EnvironmentType": "OnPremise",
-    "EnvironmentName": "test-onpremise"
-  },
-  "DeployToOnPremiseProd": {
-    "EnvironmentType": "OnPremise",
-    "EnvironmentName": "prod-onpremise"
+    "EnvironmentName": "bcserverrest"
   },
   "DeployToOnPremiseTestCustom": {
     "EnvironmentType": "OnPremiseCustom",
-    "EnvironmentName": "test-onpremise",
+    "EnvironmentName": "bcserverrest",
     "ContinuousDeployment": false 
   }
 
