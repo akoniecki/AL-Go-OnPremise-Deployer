@@ -50,7 +50,7 @@ jobs:
           # Import helpers
           $alGoActionsPath = Get-ChildItem -Path $helperBasePath -Directory | Sort-Object Name -Descending | Select-Object -First 1
           if ($null -eq $alGoActionsPath) { throw "AL-Go-Actions directory not found." }
-          . (Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1" -Resolve)
+          . (Join-Path -Path $alGoActionsPath.FullName -ChildPath "AL-Go-Helper.ps1")
           Invoke-Expression -Command (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/AL-Go-Actions/main/CheckForUpdates/yamlclass.ps1").Content
     
           # Validate token

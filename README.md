@@ -97,8 +97,7 @@
             "clientId": "<client-id>",
             "clientSecret": "<client-secret>",
             "tenantId": "<tenant-id>",
-            "environment": "<environment-name>",
-            "apiBaseUrl": "http://your-onprem-instance-api-base-url/"
+            "apiBaseUrl": "<https://yourOnPremBcServer.westeurope.cloudapp.azure.com>"
         }
         ```
     - `apiBaseUrl` is specific to AL-Go OnPremise Deployer and should be manually added to the `authContext` JSON. It should be the URL to  on-premise Business Central instance with the Automation API enabled and exposed.
