@@ -72,9 +72,14 @@ $bcHelperFunctionsPath = Join-Path -Path $bcContainerHelperPath.FullName -ChildP
 Write-Host "Authenticating..."
 try {
     $authContextParams = $parameters.AuthContext | ConvertFrom-Json | ConvertTo-HashTable 
+    if (-not ($authContextParams.ContainsKey('apiBaseUrl') -and $authContextParams.apiBaseUrl)) {
+        throw "AuthContext parameter ""apiBaseUrl"" does not exist or is empty."
+    }
+    $environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)"
+    $authContextParams["scopes"] = $environmentUrl
     $authContext = New-BcAuthContext @authContextParams
     if ($null -eq $authContext) {
-        throw "Authentication failed"
+        throw "AuthContext could not be created."
     }
     Write-Host "Authentication successful, authContext created."
 } catch {
@@ -83,13 +88,9 @@ try {
 
 # Preparing automation API connection
 Write-Host "Preparing automation API connection..."
-if (-not ($authContextParams.ContainsKey('apiBaseUrl') -and $authContextParams.apiBaseUrl)) {
-    throw "AuthContext parameter ""apiBaseUrl"" does not exist or is empty."
-}
 $environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)"
 Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "environmentUrl=$environmentUrl"
 Write-Host "EnvironmentUrl: $environmentUrl"
-
 $response = Invoke-RestMethod -UseBasicParsing -Method Get -Uri "$environmentUrl/deployment/url"
 if ($response.Status -eq "DoesNotExist") {
     OutputError -message "Environment with name $($parameters.EnvironmentName) does not exist in the current authorization context."
