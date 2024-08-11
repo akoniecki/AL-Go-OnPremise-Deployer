@@ -92,7 +92,7 @@
 3. **authContext Secrets:**
     - Prepare your `authContext` JSON, ensuring it is compressed without any whitespaces, and include the **apiBaseUrl** parameter:
         ```json
-        {"clientId": "<client-id>","clientSecret": "<client-secret>","tenantId": "<tenant-id>","apiBaseUrl": "<https://yourOnPremBcServer.westeurope.cloudapp.azure.com>"}
+        {"clientId":"<client-id>","clientSecret":"<client-secret>","tenantId":"<tenant-id>","apiBaseUrl":"<https://yourOnPremBcServer.westeurope.cloudapp.azure.com>"}
         ```
     - The `apiBaseUrl` is specific to AL-Go OnPremise Deployer and must be manually added to the `authContext` JSON. This should point to your on-premise Business Central instance with the Automation API enabled and exposed.
     - Add `authContext` secrets to your GitHub Action secrets or connected Azure Key Vault. Separate entries are needed for each environment:
