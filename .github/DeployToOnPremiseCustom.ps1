@@ -47,7 +47,7 @@ foreach ($key in $parameters.Keys) {
     $ALGoOnPremiseDeployerScript = Join-Path $ENV:GITHUB_WORKSPACE ".github/DeployToOnPremise.ps1"
     if (Test-Path $ALGoOnPremiseDeployerScript) {
         Write-Host "Deployment process handled by AL-Go OnPremise Deployer started."
-        #. $ALGoOnPremiseDeployerScript -parameters $parameters
+        . $ALGoOnPremiseDeployerScript -parameters $parameters
         # To disable telemetry: . $ALGoOnPremiseDeployerScript -parameters $parameters -DoNotSendTelemetry
     } else {
         throw "AL-Go OnPremise Deployer files are missing. Run Install/Update workflow and try again"
