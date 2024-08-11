@@ -5,15 +5,24 @@ Param(
     [switch]$DoNotSendTelemetry)
 
 Write-Host
-Write-Host "==============================================================" 
-Write-Host "=======                                                ======="
-Write-Host "=======            AL-Go OnPremise Deployer            ======="
-Write-Host "=======                                                ======="
-Write-Host "=============================================================="
+Write-Host "     _    _           ____  ___                   "
+Write-Host "    / \  | |         / ___|/ _ \                  "
+Write-Host "   / _ \ | |   _____| |  _| | | |                 "
+Write-Host "  / ___ \| |__|_____| |_| | |_| |                 "
+Write-Host " /_/__ \_\_____|__   \____|\___/       _          "
+Write-Host "  / _ \ _ __ |  _ \ _ __ ___ _ __ ___ (_)___  ___ "
+Write-Host " | | | | '_ \| |_) | '__/ _ \ '_ ` _ \| / __|/ _ \"
+Write-Host " | |_| | | | |  __/| | |  __/ | | | | | \__ \  __/"
+Write-Host "  \___/|_| |_|_|   |_|  \___|_| |_| |_|_|___/\___|"
+Write-Host " |  _ \  ___ _ __ | | ___  _   _  ___ _ __        "
+Write-Host " | | | |/ _ \ '_ \| |/ _ \| | | |/ _ \ '__|       "
+Write-Host " | |_| |  __/ |_) | | (_) | |_| |  __/ |          "
+Write-Host " |____/ \___| .__/|_|\___/ \__, |\___|_|          "
+Write-Host "            |_|            |___/                  "
 Write-Host
-Write-Host "***          It's open source! Join us on GitHub:          ***" 
-Write-Host "      www.github.com/akoniecki/AL-Go-OnPremise-Deployer       "
-Write-Host "*   Give the GitHub project a Star, share, and contribute!   *" 
+Write-Host "**   It's open source!" 
+Write-Host "**   www.github.com/akoniecki/AL-Go-OnPremise-Deployer"
+Write-Host "**   Join us on GitHub and contribute!" 
 Write-Host "**************************************************************" 
 Write-Host
 
