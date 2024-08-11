@@ -5,14 +5,16 @@ Param(
     [switch]$DoNotSendTelemetry)
 
 Write-Host
-Write-Host "===============================================" -ForegroundColor Cyan
-Write-Host "       Welcome to AL-Go OnPremise Deployer      " -ForegroundColor Yellow
-Write-Host "===============================================" -ForegroundColor Cyan
+Write-Host "==============================================================" 
+Write-Host "=======                                                ======="
+Write-Host "=======            AL-Go OnPremise Deployer            ======="
+Write-Host "=======                                                ======="
+Write-Host "=============================================================="
 Write-Host
-Write-Host "It's open source! Join us on GitHub:" -ForegroundColor Green
-Write-Host "www.github.com/akoniecki/AL-Go-OnPremise-Deployer" -ForegroundColor Blue
-Write-Host
-Write-Host "Give the GitHub project a star, share, and contribute!" -ForegroundColor Magenta
+Write-Host "***          It's open source! Join us on GitHub:          ***" 
+Write-Host "      www.github.com/akoniecki/AL-Go-OnPremise-Deployer       "
+Write-Host "*   Give the GitHub project a Star, share, and contribute!   *" 
+Write-Host "**************************************************************" 
 Write-Host
 
 function Send-TelemetryData {
@@ -96,10 +98,10 @@ try {
         "environment" = $parameters.EnvironmentName
         "appFiles" = $parameters.Apps
         "schemaSyncMode" = "Add"
-        "companyName" = $parameters.companyName
     }
     $schemaSyncMode = $deployParameters.schemaSyncMode
-    $companyName = $deployParameters.companyName
+    $companyName =  if ($parameters.PSObject.Properties["companyName"]) { $parameters.companyName } else { "" }
+
 
     Write-Host "Publishing apps to environment using automation API"
 
