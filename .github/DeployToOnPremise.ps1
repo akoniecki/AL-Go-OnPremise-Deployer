@@ -81,24 +81,15 @@ try {
     throw "Authentication failed. $([environment]::Newline) $($_.exception.message)"
 }
 
-# Preparing Automation API connection
-Write-Host "Preparing Automation API connection..."
+# Preparing Automation API url
+Write-Host "Preparing URL for Automation API endpoint..."
 if (-not ($authContextParams.ContainsKey('apiBaseUrl') -and $authContextParams.apiBaseUrl)) {
     throw "AuthContext parameter ""apiBaseUrl"" does not exist or is empty."
 }
 $environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)"
 Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "environmentUrl=$environmentUrl"
-Write-Host "EnvironmentUrl: $environmentUrl"
-$response = Invoke-RestMethod -UseBasicParsing -Method Get -Uri "$environmentUrl/deployment/url"
-if ($response.Status -eq "DoesNotExist") {
-    OutputError -message "Environment with name $($parameters.EnvironmentName) does not exist in the current authorization context."
-    exit
-}
-if ($response.Status -ne "Ready") {
-    OutputError -message "Environment with name $($parameters.EnvironmentName) is not ready (Status is $($response.Status))."
-    exit
-}
-Write-Host "Automation API ready."
+Write-Host "Automation API endpoint: $environmentUrl"
+
 try {
     $deployParameters = @{
         "bcAuthContext" = $authContext
@@ -111,11 +102,6 @@ try {
     $companyName = $deployParameters.companyName
 
     Write-Host "Publishing apps to environment using automation API"
-
-    function GetAuthHeaders {
-        $authContext = Renew-BcAuthContext -bcAuthContext $authContext
-        return @{ "Authorization" = "Bearer $($authContext.AccessToken)" } 
-    }
 
     $appFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
     $appFiles = CopyAppFilesToFolder -appFiles $deployParameters.appFiles -folder $appFolder
