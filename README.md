@@ -3,11 +3,10 @@
 ## Overview
 **AL-Go OnPremise Deployer** extends [AL-Go for GitHub](https://github.com/microsoft/AL-Go) to enable deployment to Business Central’s on-premise environments, previously limited to SaaS.
 
-![Integration with AL-Go](https://i.pinimg.com/originals/4f/7e/ab/4f7eab8b98913e658391c54b57980e68.gif)
+![Integration with AL-Go](https://i.ibb.co/wsZ2LDx/al-go-onpremise-deployer-img1.png)
 
 [![CI/CD Status](https://img.shields.io/github/actions/workflow/status/akoniecki/AL-Go-OnPremise-Deployer/CICD.yml)](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/actions)
 [![License](https://img.shields.io/github/license/akoniecki/AL-Go-OnPremise-Deployer)](LICENSE)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 ## Table of Contents
 - [Features](#-features)
@@ -146,4 +145,4 @@ Share feedback and report issues [here](https://github.com/akoniecki/AL-Go-OnPre
 ## 📧 Contact
 Reach out at [akoniecki@pm.me](mailto:akoniecki@pm.me) or connect on [LinkedIn](https://www.linkedin.com/in/akoniecki/).
 
-**If you read the whole thing, give the project a Star! 🌟**
+**Got this far? Your Star can help this project shine! 🌟**
