@@ -17,5 +17,6 @@
     "EnvironmentName": "bcserverrest",
     "ContinuousDeployment": false
   },
-  "templateSha": "81cff3d03e8fe6b88ee3fc0848594bfd4d9039a4"
+  "templateSha": "81cff3d03e8fe6b88ee3fc0848594bfd4d9039a4",
+  "artifact": "/onprem/23.3/w1/latest"
 }
