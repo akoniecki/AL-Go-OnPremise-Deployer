@@ -103,6 +103,11 @@ try {
 
     Write-Host "Publishing apps to environment using automation API"
 
+    function GetAuthHeaders {
+        $authContext = Renew-BcAuthContext -bcAuthContext $authContext
+        return @{ "Authorization" = "Bearer $($authContext.AccessToken)" } 
+    }
+
     $appFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
     $appFiles = CopyAppFilesToFolder -appFiles $deployParameters.appFiles -folder $appFolder
 
