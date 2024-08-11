@@ -218,7 +218,7 @@ try {
             $customUriStartIndex = $customUri.IndexOf("/companies")
             $customUri = $customUri.Substring($customUriStartIndex)
             $customUri = $automationApiUrl + $customUri
-            Write-Host "CustomUri: $customUri"
+            Write-Host "OnPremise Automation API endpoint for deployment: $customUri"
 
             Invoke-RestMethod `
                 -Method Patch `
