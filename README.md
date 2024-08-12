@@ -104,13 +104,14 @@
 
 4. **Enable Automation API on Your On-Premise BC Instances:**
     - AL-Go OnPremise Deployer fully supports [ALOps-External-Deployer](https://github.com/HodorNV/ALOps-External-Deployer).
-    - To enable the Automation API on your BC instances, follow the instructions in their [README](https://github.com/HodorNV/ALOps-External-Deployer).
+    - To enable the Automation API on your BC instances, follow the instructions in [ALOps External Deployer's README](https://github.com/HodorNV/ALOps-External-Deployer).
     - Install ALOps-External-Deployer on each BC instance you want to deploy to:
         ```bash
             install-module ALOps.ExternalDeployer -Force
             import-module ALOps.ExternalDeployer 
             Install-ALOpsExternalDeployer -ServerInstance test-onpremise
         ```
+    - Remember to register your app in Entra ID (Azure AD) to obtain your authContext secret (ClientID, ClientSecret, and TenantID) and configure your BC instance for Entra ID authentication.
 
 ## 📊 Usage Statistics
 To improve AL-Go OnPremise Deployer, anonymized usage data is collected:
@@ -139,5 +140,6 @@ Have feedback or found an issue? Share it [here](https://github.com/akoniecki/AL
 
 ## 📧 Contact
 Reach out at [akoniecki@pm.me](mailto:akoniecki@pm.me) or connect on [LinkedIn](https://www.linkedin.com/in/akoniecki/).
+
 
 **Got this far? Your Star can help this project shine! 🌟**
