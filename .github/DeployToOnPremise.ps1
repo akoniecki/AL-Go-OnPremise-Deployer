@@ -36,8 +36,7 @@ function Send-TelemetryData {
     $repositoryHash = [BitConverter]::ToString($hash.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($env:GITHUB_REPOSITORY))) -replace '-', ''
     $payload = @{ GithubUser = $githubUserHash; Repository = $repositoryHash; Status = $status } | ConvertTo-Json
     try { 
-        #Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType 'application/json' -Body $payload 
-        Write-Host "[ DEBUG ] Telemetry payload sent: $payload"
+        Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType 'application/json' -Body $payload
     } catch { 
         Write-Host "Failed to send usage statistics: $($_.Exception.Message)" 
     }
