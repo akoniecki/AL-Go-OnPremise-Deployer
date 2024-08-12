@@ -30,11 +30,11 @@ function Send-TelemetryData {
     param (
         [string]$status
     )
-    $webhookUrl = "" 
+    $webhookUrl = "https://algoonpremisedeployer.azurewebsites.net/api/Usage" 
     $hash = [System.Security.Cryptography.SHA256]::Create()
     $githubUserHash = [BitConverter]::ToString($hash.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($env:GITHUB_ACTOR))) -replace '-', ''
     $repositoryHash = [BitConverter]::ToString($hash.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($env:GITHUB_REPOSITORY))) -replace '-', ''
-    $payload = @{ githubUser = $githubUserHash; repository = $repositoryHash; status = $status } | ConvertTo-Json
+    $payload = @{ GithubUser = $githubUserHash; Repository = $repositoryHash; Status = $status } | ConvertTo-Json
     try { 
         #Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType 'application/json' -Body $payload 
         Write-Host "[ DEBUG ] Telemetry payload sent: $payload"
