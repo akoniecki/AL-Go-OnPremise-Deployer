@@ -123,7 +123,6 @@ try {
 
     $automationApiUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)/api/microsoft/automation/v2.0"
 
-    Write-Host "$automationApiUrl/companies"
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $companies = Invoke-RestMethod -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies" -UseBasicParsing
     $company = $companies.value | Where-Object { ($companyName -eq "") -or ($_.name -eq $companyName) } | Select-Object -First 1
@@ -136,14 +135,9 @@ try {
     }
     Write-Host "Company '$companyName' has id $companyId"
     
-    Write-Host "$automationApiUrl/companies($companyId)/extensions"
     $getExtensions = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensions" -UseBasicParsing
     $extensions = (ConvertFrom-Json $getExtensions.Content).value | Sort-Object -Property DisplayName
     
-    Write-Host "Extensions before:"
-    $extensions | ForEach-Object { Write-Host " - $($_.DisplayName), Version $($_.versionMajor).$($_.versionMinor).$($_.versionBuild).$($_.versionRevision), Installed=$($_.isInstalled)" }
-    Write-Host
-
     $body = @{"schedule" = "Current Version"}
     $appDep = $extensions | Where-Object { $_.DisplayName -eq 'Application' }
     $appDepVer = [System.Version]"$($appDep.versionMajor).$($appDep.versionMinor).$($appDep.versionBuild).$($appDep.versionRevision)"
@@ -217,7 +211,6 @@ try {
             $customUriStartIndex = $customUri.IndexOf("/companies")
             $customUri = $customUri.Substring($customUriStartIndex)
             $customUri = $automationApiUrl + $customUri
-            Write-Host "OnPremise Automation API endpoint for deployment: $customUri"
 
             Invoke-RestMethod `
                 -Method Patch `
@@ -283,12 +276,6 @@ catch {
     exit
 }
 finally {
-    $getExtensions = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensions" -UseBasicParsing
-    $extensions = (ConvertFrom-Json $getExtensions.Content).value | Sort-Object -Property DisplayName
-    Write-Host
-    Write-Host "Extensions after:"
-    $extensions | ForEach-Object { Write-Host " - $($_.DisplayName), Version $($_.versionMajor).$($_.versionMinor).$($_.versionBuild).$($_.versionRevision), Installed=$($_.isInstalled)" }
-
     if (Test-Path $appFolder) {
         Remove-Item $appFolder -Recurse -Force -ErrorAction SilentlyContinue
     }
