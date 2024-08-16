@@ -98,7 +98,7 @@ jobs:
           # Commit changes
           $commitMessage = if ($update) { "Update AL-Go OnPremise Deployer" } else { "Install AL-Go OnPremise Deployer" }
           CommitFromNewFolder -serverUrl $serverUrl -commitMessage $commitMessage -branch $branch
-          Write-Output "Changes committed successfully. New Pull Request has been created."
+          Write-Output "Changes committed successfully. New direct commit has been created."
         } catch {
           Write-Error ("An error occurred: " + $_.Exception.Message)
           exit 1
