@@ -5,8 +5,7 @@
 
 ![Integration with AL-Go](https://i.ibb.co/wsZ2LDx/al-go-onpremise-deployer-img1.png)
 
-[![CI/CD Status](https://img.shields.io/github/actions/workflow/status/akoniecki/AL-Go-OnPremise-Deployer/CICD.yml)](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/actions)
-[![License](https://img.shields.io/github/license/akoniecki/AL-Go-OnPremise-Deployer)](LICENSE)
+[![CI/CD Status](https://img.shields.io/github/actions/workflow/status/akoniecki/AL-Go-OnPremise-Deployer/CICD.yaml)](https://github.com/akoniecki/AL-Go-OnPremise-Deployer/actions)
 
 ## Table of Contents
 - [Features](#-features)
