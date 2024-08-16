@@ -73,7 +73,8 @@ jobs:
           # Update scheduler if provided
           Write-Output "Checking scheduler settings..."
           $schedule = $ENV:UpdateOnPremiseDeployerSchedule
-          $yaml = [Yaml]::Load('.github\workflows\OnPremiseDeployer.yaml')
+          $yamlFilePath = ".github\workflows\OnPremiseDeployer.yaml"
+          $yaml = [Yaml]::Load($yamlFilePath)
           $yamlOn = $yaml.Get('on:/')
           $scheduleStart = 0
           $scheduleCount = 0
