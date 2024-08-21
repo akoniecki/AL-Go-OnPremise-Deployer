@@ -77,15 +77,16 @@ jobs:
           $schedule = $ENV:UpdateOnPremiseDeployerSchedule
           $yamlFilePath = ".github\workflows\OnPremiseDeployer.yaml"
           $yaml = [Yaml]::Load($yamlFilePath)
-          $yamlOn = $yaml.Get('on:')
           $scheduleStart = 0
           $scheduleCount = 0
-          if ($yamlOn.Find('schedule:', [ref] $scheduleStart, [ref] $scheduleCount)) {
-              $yamlOn.Remove($scheduleStart, $scheduleCount)
+          if ($yaml.Find('schedule:', [ref] $scheduleStart, [ref] $scheduleCount)) {
+              $yaml.Remove($scheduleStart, $scheduleCount)
+              Write-Host "."
           }
           if ($schedule) {
             if ($schedule -match '^\S+ \S+ \S+ \S+ \S+$') {
-              $yaml.Replace('on:', $yamlOn.content + @('schedule:', "  - cron: '$schedule'"))
+              $yamlOn = $yaml.Get('on:/')
+              $yaml.Replace('on:/', $yamlOn.content + @('schedule:', "  - cron: '$schedule'"))
               $yaml.content -join "`n" | Out-File -FilePath $yamlFilePath -Encoding utf8 -Force
               Write-Host "Scheduler settings updated successfully."
             } else {
