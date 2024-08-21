@@ -79,7 +79,7 @@ jobs:
           $yaml = [Yaml]::Load($yamlFilePath)
           $scheduleStart = 0
           $scheduleCount = 0
-          if ($yaml.Find('schedule:', [ref] $scheduleStart, [ref] $scheduleCount)) {
+          if ($yaml.Find('on:/schedule:', [ref] $scheduleStart, [ref] $scheduleCount)) {
               $yaml.Remove($scheduleStart, $scheduleCount)
               Write-Host "."
           }
