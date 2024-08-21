@@ -43,6 +43,22 @@ jobs:
       run: |
         try {
           Write-Output "Starting AL-Go OnPremise Deployer installation/update..."
+          Write-Host
+          Write-Host "     _    _           ____  ___                   "
+          Write-Host "    / \  | |         / ___|/ _ \                  "
+          Write-Host "   / _ \ | |   _____| |  _| | | |                 "
+          Write-Host "  / ___ \| |__|_____| |_| | |_| |                 "
+          Write-Host " /_/__ \_\_____|__   \____|\___/       _          "
+          Write-Host "  / _ \ _ __ |  _ \ _ __ ___ _ __ ___ (_)___  ___ "
+          Write-Host " | | | | '_ \| |_) | '__/ _ \ '_ ` _ \| / __|/ _ \"
+          Write-Host " | |_| | | | |  __/| | |  __/ | | | | | \__ \  __/"
+          Write-Host "  \___/|_| |_|_|   |_|  \___|_| |_| |_|_|___/\___|"
+          Write-Host " |  _ \  ___ _ __ | | ___  _   _  ___ _ __        "
+          Write-Host " | | | |/ _ \ '_ \| |/ _ \| | | |/ _ \ '__|       "
+          Write-Host " | |_| |  __/ |_) | | (_) | |_| |  __/ |          "
+          Write-Host " |____/ \___| .__/|_|\___/ \__, |\___|_|          "
+          Write-Host "            |_|            |___/                  "
+          Write-Host
         
           # Define paths and URLs
           $helperBasePath = "..\..\_actions\microsoft\AL-Go-Actions\"
@@ -99,7 +115,7 @@ jobs:
           # Commit changes
           $commitMessage = if ($update) { "Update AL-Go OnPremise Deployer" } else { "Install AL-Go OnPremise Deployer" }
           CommitFromNewFolder -serverUrl $serverUrl -commitMessage $commitMessage -branch $branch
-          Write-Output "Changes committed successfully. New direct commit has been created."
+          Write-Output "Successful!"
         } catch {
           Write-Error ("An error occurred: " + $_.Exception.Message)
           exit 1
