@@ -1,7 +1,10 @@
 ﻿name: Install or Update AL-Go OnPremise Deployer
 
 on:
-  workflow_dispatch:
+  on:
+    workflow_dispatch:
+    schedule:
+      - cron: '0 19 * * 2'
   schedule:
     - cron: '0 19 * * 2'
 
