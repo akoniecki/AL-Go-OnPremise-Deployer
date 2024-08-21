@@ -88,7 +88,7 @@ jobs:
           }
           if ($schedule) {
             if ($schedule -match '^\S+ \S+ \S+ \S+ \S+$') {
-              $yaml.Replace('on:/', $yamlOn.content + @('schedule:', "  - cron: '$schedule'"))
+              $yaml.Replace('on:', $yamlOn.content + @('schedule:', "  - cron: '$schedule'"))
               $yaml.content -join "`n" | Out-File -FilePath $yamlFilePath -Encoding utf8 -Force
               Write-Host "Scheduler settings updated successfully."
             } else {
