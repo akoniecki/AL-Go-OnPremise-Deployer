@@ -93,6 +93,10 @@
         ```json
         {"clientId":"<client-id>","clientSecret":"<client-secret>","tenantId":"<tenant-id>","apiBaseUrl":"<https://yourOnPremBcServer.westeurope.cloudapp.azure.com>"}
         ```
+    - In case of using Basic Authentication, ensure `authContext` includes **Username** and **Password** parameters:
+        ```json
+        {"Username":"<bc-username>","Password":"<webservice-access-key>","apiBaseUrl":"<https://yourOnPremBcServer.westeurope.cloudapp.azure.com>"}
+        ```
     - The `apiBaseUrl` is specific to AL-Go OnPremise Deployer and must be manually added to the `authContext` JSON. This should point to your on-premise Business Central instance with the Automation API enabled and exposed.
     - Add `authContext` secrets to your GitHub Action secrets or connected Azure Key Vault. Separate entries are needed for each environment:
         ```markdown
@@ -110,7 +114,7 @@
             import-module ALOps.ExternalDeployer 
             Install-ALOpsExternalDeployer -ServerInstance test-onpremise
         ```
-    - Be sure to register your app in Entra ID (Azure AD) to obtain the authContext credentials (ClientID, ClientSecret, and TenantID), and configure your BC instance for Entra ID authentication.
+    - In case of using Entra ID authentication, be sure to register your app in Entra ID (Azure AD) to obtain the authContext credentials (ClientID, ClientSecret, and TenantID), and configure your BC instance for Entra ID authentication.
     
 ## 📊 Usage Statistics
 To improve AL-Go OnPremise Deployer, anonymized usage data is collected:
