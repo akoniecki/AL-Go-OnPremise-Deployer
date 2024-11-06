@@ -81,12 +81,21 @@ $bcHelperFunctionsPath = Join-Path -Path $bcContainerHelperPath.FullName -ChildP
 # Authentication: authContext
 Write-Host "Authenticating..."
 try {
-    $authContextParams = $parameters.AuthContext | ConvertFrom-Json | ConvertTo-HashTable 
-    $authContext = New-BcAuthContext @authContextParams
-    if ($null -eq $authContext) {
-        throw "AuthContext could not be created."
+    $authContextParams = $parameters.AuthContext | ConvertFrom-Json | ConvertTo-HashTable
+    if (-not ($authContextParams.ContainsKey('ClientSecret'))) {
+        Write-Host "Basic authentication"
+        if ((-not ($authContextParams.ContainsKey('Username') -and $authContextParams.Username)) -or (-not ($authContextParams.ContainsKey('Password') -and $authContextParams.Password))) {
+            throw "AuthContext credentials (Username and Password) for Basic authentication do not exist or are empty."
+        }
+        $basicAuth = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($($authContextParams.Username):$($authContextParams.Password)))
+    } else {
+        Write-Host "Entra ID authentication"
+        $authContext = New-BcAuthContext @authContextParams
+        if ($null -eq $authContext) {
+            throw "AuthContext could not be created."
+        }
+        Write-Host "Authentication successful, authContext created."
     }
-    Write-Host "Authentication successful, authContext created."
 } catch {
     throw "Authentication failed. $([environment]::Newline) $($_.exception.message)"
 }
@@ -114,8 +123,12 @@ try {
     Write-Host "Publishing apps to environment using automation API"
 
     function GetAuthHeaders {
-        $authContext = Renew-BcAuthContext -bcAuthContext $authContext
-        return @{ "Authorization" = "Bearer $($authContext.AccessToken)" } 
+        if ($basicAuth) {
+            return @{ "Authorization" = "Basic $($basicAuth)" } 
+        } else {
+            $authContext = Renew-BcAuthContext -bcAuthContext $authContext
+            return @{ "Authorization" = "Bearer $($authContext.AccessToken)" } 
+        }
     }
 
     $appFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
