@@ -122,11 +122,13 @@ try {
     Write-Host "Publishing apps to environment using automation API"
 
     function GetAuthHeaders {
-        if ($basicAuth) {
-            return @{ "Authorization" = "Basic $($basicAuth)" } 
-        } else {
+        if ($null -ne $authContext) {
             $authContext = Renew-BcAuthContext -bcAuthContext $authContext
             return @{ "Authorization" = "Bearer $($authContext.AccessToken)" } 
+        } elseif ($null -ne $basicAuth) {
+            return @{ "Authorization" = "Basic $($basicAuth)" } 
+        } else {
+            throw "No valid authentication method available."
         }
     }
 
