@@ -2,7 +2,8 @@ Param(
     [Parameter(Mandatory = $true)]
     [hashtable] $parameters,
     [Parameter(HelpMessage = "We gather anonymized usage telemetry data to make the AL-Go OnPremise Deployer tool even better.", Mandatory = $false)]
-    [switch]$DoNotSendTelemetry)
+    [switch]$DoNotSendTelemetry
+)
 
 Write-Host
 Write-Host "     _    _           ____  ___                   "
@@ -52,7 +53,7 @@ Write-Host "Importing AL:Go and BCContainerHelper helper libraries..."
 $helperBasePath = "..\..\_actions\microsoft\AL-Go-Actions\"
 $bcContainerHelperBasePath = "C:\ProgramData\BcContainerHelper\"
 
-# Find the latest versions of required heplers
+# Find the latest versions of required helpers
 $alGoActionsPath = Get-ChildItem -Path $helperBasePath -Directory | 
     Sort-Object Name -Descending | 
     Select-Object -First 1
@@ -82,19 +83,18 @@ $bcHelperFunctionsPath = Join-Path -Path $bcContainerHelperPath.FullName -ChildP
 Write-Host "Authenticating..."
 try {
     $authContextParams = $parameters.AuthContext | ConvertFrom-Json | ConvertTo-HashTable
-    if (-not ($authContextParams.ContainsKey('ClientSecret'))) {
-        Write-Host "Basic authentication"
-        if ((-not ($authContextParams.ContainsKey('Username') -and $authContextParams.Username)) -or (-not ($authContextParams.ContainsKey('Password') -and $authContextParams.Password))) {
-            throw "AuthContext credentials (Username and Password) for Basic authentication do not exist or are empty."
-        }
-        $basicAuth = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($($authContextParams.Username):$($authContextParams.Password)))
-    } else {
+    if ($authContextParams.ContainsKey('ClientSecret') -and $authContextParams.ClientSecret) {
         Write-Host "Entra ID authentication"
         $authContext = New-BcAuthContext @authContextParams
         if ($null -eq $authContext) {
             throw "AuthContext could not be created."
         }
         Write-Host "Authentication successful, authContext created."
+    } elseif ($authContextParams.ContainsKey('Username') -and $authContextParams.ContainsKey('Password')) {
+        Write-Host "Basic authentication"
+        $basicAuth = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($authContextParams.Username):$($authContextParams.Password)"))
+    } else {
+        throw "No valid authentication method found in AuthContext parameters."
     }
 } catch {
     throw "Authentication failed. $([environment]::Newline) $($_.exception.message)"
@@ -117,8 +117,7 @@ try {
         "schemaSyncMode" = "Add"
     }
     $schemaSyncMode = $deployParameters.schemaSyncMode
-    $companyName =  if ($parameters.PSObject.Properties["companyName"]) { $parameters.companyName } else { "" }
-
+    $companyName = if ($parameters.PSObject.Properties["companyName"]) { $parameters.companyName } else { "" }
 
     Write-Host "Publishing apps to environment using automation API"
 
@@ -150,7 +149,7 @@ try {
     
     $getExtensions = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensions" -UseBasicParsing
     $extensions = (ConvertFrom-Json $getExtensions.Content).value | Sort-Object -Property DisplayName
-    
+
     $body = @{"schedule" = "Current Version"}
     $appDep = $extensions | Where-Object { $_.DisplayName -eq 'Application' }
     $appDepVer = [System.Version]"$($appDep.versionMajor).$($appDep.versionMinor).$($appDep.versionBuild).$($appDep.versionRevision)"
