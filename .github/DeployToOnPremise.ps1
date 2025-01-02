@@ -81,6 +81,8 @@ $bcHelperFunctionsPath = Join-Path -Path $bcContainerHelperPath.FullName -ChildP
 
 # Authentication: authContext
 Write-Host "Authenticating..."
+$authContext = $null
+$basicAuth = $null
 try {
     $authContextParams = $parameters.AuthContext | ConvertFrom-Json | ConvertTo-HashTable
     if ($authContextParams.ContainsKey('ClientSecret') -and $authContextParams.ClientSecret) {
@@ -108,6 +110,16 @@ if (-not ($authContextParams.ContainsKey('apiBaseUrl') -and $authContextParams.a
 $environmentUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)"
 Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "environmentUrl=$environmentUrl"
 Write-Host "Automation API endpoint: $environmentUrl"
+
+# Multitenant deployment
+if ($authContextParams.ContainsKey('Tenant') -and $authContextParams.Tenant) {
+    $tenant = $authContextParams.Tenant
+    $tenantUrl = "?tenant=$tenant"
+    Write-Host "Multitenant environment. Tenant in use: $tenant"
+} else {
+    $tenantUrl = ""
+    Write-Host "Single-tenant environment. AuthContext parameter ""Tenant"" not found. "
+}
 
 try {
     $deployParameters = @{
@@ -138,7 +150,7 @@ try {
     $automationApiUrl = "$($authContextParams.apiBaseUrl.TrimEnd('/'))/$($parameters.EnvironmentName)/api/microsoft/automation/v2.0"
 
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    $companies = Invoke-RestMethod -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies" -UseBasicParsing
+    $companies = Invoke-RestMethod -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies$tenantUrl" -UseBasicParsing
     $company = $companies.value | Where-Object { ($companyName -eq "") -or ($_.name -eq $companyName) } | Select-Object -First 1
     if (!($company)) {
         throw "No company $companyName"
@@ -149,7 +161,7 @@ try {
     }
     Write-Host "Company '$companyName' has id $companyId"
     
-    $getExtensions = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensions" -UseBasicParsing
+    $getExtensions = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensions$tenantUrl" -UseBasicParsing
     $extensions = (ConvertFrom-Json $getExtensions.Content).value | Sort-Object -Property DisplayName
 
     $body = @{"schedule" = "Current Version"}
@@ -198,19 +210,19 @@ try {
             Write-Host "publishing and installing"
         }
         if (!$existingApp) {
-            $extensionUpload = (Invoke-RestMethod -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionUpload" -Headers (GetAuthHeaders)).value
+            $extensionUpload = (Invoke-RestMethod -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionUpload$tenantUrl" -Headers (GetAuthHeaders)).value
             Write-Host "."
             if ($extensionUpload -and $extensionUpload.systemId) {
                 $extensionUpload = Invoke-RestMethod `
                     -Method Patch `
-                    -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))" `
+                    -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))$tenantUrl" `
                     -Headers ((GetAuthHeaders) + $ifMatchHeader + $jsonHeader) `
                     -Body ($body | ConvertTo-Json -Compress)
             }
             else {
                 $ExtensionUpload = Invoke-RestMethod `
                     -Method Post `
-                    -Uri "$automationApiUrl/companies($companyId)/extensionUpload" `
+                    -Uri "$automationApiUrl/companies($companyId)/extensionUpload$tenantUrl" `
                     -Headers ((GetAuthHeaders) + $jsonHeader) `
                     -Body ($body | ConvertTo-Json -Compress)
             }
@@ -228,13 +240,13 @@ try {
 
             Invoke-RestMethod `
                 -Method Patch `
-                -Uri $customUri `
+                -Uri $customUri$tenantUrl `
                 -Headers ((GetAuthHeaders) + $ifMatchHeader + $streamHeader) `
                 -Body $fileBody | Out-Null
             Write-Host "."    
             Invoke-RestMethod `
                 -Method Post `
-                -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))/Microsoft.NAV.upload" `
+                -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))/Microsoft.NAV.upload$tenantUrl" `
                 -Headers ((GetAuthHeaders) + $ifMatchHeader) | Out-Null
             Write-Host "."    
             $completed = $false
@@ -244,7 +256,7 @@ try {
             {
                 Start-Sleep -Seconds $sleepSeconds
                 try {
-                    $extensionDeploymentStatusResponse = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionDeploymentStatus" -UseBasicParsing
+                    $extensionDeploymentStatusResponse = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionDeploymentStatus$tenantUrl" -UseBasicParsing
                     $extensionDeploymentStatuses = (ConvertFrom-Json $extensionDeploymentStatusResponse.Content).value
 
                     $completed = $true
