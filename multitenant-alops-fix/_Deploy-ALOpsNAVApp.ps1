@@ -1,4 +1,4 @@
-﻿# Get the directory of the _Deploy-ALOpsNAVApp.ps1 script 
+﻿ # Get the directory of the _Deploy-ALOpsNAVApp.ps1 script 
 $ScriptDirectory = "C:\Program Files\alops\externaldeployer\bc\psscripts"
 
 # Define the log file name with date and time
@@ -8,7 +8,7 @@ $LogFile = Join-Path -Path $ScriptDirectory -ChildPath ("DeployLog_$($PackageDat
 $debugSaveLog = $false
 
 if ($debugSaveLog -eq $true) {
-    Start-Transcript -Path $LogFile
+Start-Transcript -Path $LogFile
 }
 
 Write-Host "*** Package Data File => [$($PackageData)]"
@@ -186,18 +186,35 @@ $OldAppVersions = Get-NAVAppInfo -ServerInstance $ServerInstance `
 $OldAppVersions = Get-NAVAppInfo -ServerInstance $ServerInstance `
                                  -Name $AppInfo.Name `
                                  -Publisher $AppInfo.Publisher `
-                                 -Tenant $AppInfo.Tenant
+                                 -Tenant $AppInfo.Tenant `
                                  -Verbose:$false `
                                  -ErrorAction Stop | Where-Object { (-not $_.IsInstalled) -and ($_.Version -ne $AppInfo.Version) } | Sort-Object -Property Version
 }
 foreach ($OldAppVersion in $OldAppVersions){
     Write-Host " * UnPublishing Old App '$($OldAppVersion.Name) v$($OldAppVersion.Version)'."
-    Unpublish-NAVApp -ServerInstance $ServerInstance `
-                     -Name $OldAppVersion.Name `
-                     -Publisher $OldAppVersion.Publisher `
-                     -Version $OldAppVersion.Version `
-                     -Verbose:$false `
-                     -ErrorAction Stop
+    #Unpublish-NAVApp -ServerInstance $ServerInstance `
+    #                 -Name $OldAppVersion.Name `
+    #                 -Publisher $OldAppVersion.Publisher `
+    #                 -Version $OldAppVersion.Version `
+    #                 -Verbose:$false `
+    #                 -ErrorAction Stop
+    if ([string]::IsNullOrEmpty($Tenant) -or $Tenant -eq "default") {
+        Unpublish-NAVApp -ServerInstance $ServerInstance `
+                         -Name $OldAppVersion.Name `
+                         -Publisher $OldAppVersion.Publisher `
+                         -Version $OldAppVersion.Version `
+                         -Verbose:$false `
+                         -ErrorAction Stop
+     } else {
+        Unpublish-NAVApp -ServerInstance $ServerInstance `
+                         -Tenant $OldAppVersion.Tenant `
+                         -Name $OldAppVersion.Name `
+                         -Publisher $OldAppVersion.Publisher `
+                         -Version $OldAppVersion.Version `
+                         -Verbose:$false `
+                         -ErrorAction Stop    
+     }
+
 }
 
 Write-Host ""
@@ -205,6 +222,6 @@ Write-Host "".PadRight(38,'*')
 Write-Host ""
 
 if ($debugSaveLog -eq $true) {
-    # Stop logging
-    Stop-Transcript
+# Stop logging
+Stop-Transcript 
 }
