@@ -26,7 +26,7 @@
     "EnvironmentName": "bcserverrest",
     "ContinuousDeployment": false
   },
-    "DeployToOnPremiseMultitenantTestTenant01": {
+  "DeployToOnPremiseMultitenantTestTenant01": {
     "EnvironmentType": "OnPremise",
     "EnvironmentName": "bcserverrest",
     "ContinuousDeployment": false
