@@ -6,7 +6,16 @@
   "CICDSchedule": "0 20 * * 2,4",
   "environments": [
     "OnPremiseTest",
-    "OnPremiseTestCustom"
+    "OnPremiseTestCustom",
+    "OnPremiseMultitenantTestTenant01",
+    "OnPremiseMultitenantTestTenant02",
+    "OnPremiseMultitenantTestTenant03",
+    "OnPremiseMultitenantTestTenant04",
+    "OnPremiseMultitenantTestTenant05",
+    "OnPremiseMultitenantTestTenant06",
+    "OnPremiseMultitenantTestTenant07",
+    "OnPremiseMultitenantTestTenant08",
+    "OnPremiseMultitenantTestTenant09"
   ],
   "DeployToOnPremiseTest": {
     "EnvironmentType": "OnPremise",
@@ -14,6 +23,51 @@
   },
   "DeployToOnPremiseTestCustom": {
     "EnvironmentType": "OnPremiseCustom",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+    "DeployToOnPremiseMultitenantTestTenant01": {
+    "EnvironmentType": "OnPremise",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+  "DeployToOnPremiseMultitenantTestTenant02": {
+    "EnvironmentType": "OnPremise",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+  "DeployToOnPremiseMultitenantTestTenant03": {
+    "EnvironmentType": "OnPremise",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+  "DeployToOnPremiseMultitenantTestTenant04": {
+    "EnvironmentType": "OnPremise",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+  "DeployToOnPremiseMultitenantTestTenant05": {
+    "EnvironmentType": "OnPremise",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+  "DeployToOnPremiseMultitenantTestTenant06": {
+    "EnvironmentType": "OnPremise",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+  "DeployToOnPremiseMultitenantTestTenant07": {
+    "EnvironmentType": "OnPremise",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+  "DeployToOnPremiseMultitenantTestTenant08": {
+    "EnvironmentType": "OnPremise",
+    "EnvironmentName": "bcserverrest",
+    "ContinuousDeployment": false
+  },
+  "DeployToOnPremiseMultitenantTestTenant09": {
+    "EnvironmentType": "OnPremise",
     "EnvironmentName": "bcserverrest",
     "ContinuousDeployment": false
   },
