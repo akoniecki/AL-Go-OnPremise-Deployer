@@ -183,10 +183,11 @@ $OldAppVersions = Get-NAVAppInfo -ServerInstance $ServerInstance `
                                  -Verbose:$false `
                                  -ErrorAction Stop | Where-Object { (-not $_.IsInstalled) -and ($_.Version -ne $AppInfo.Version) } | Sort-Object -Property Version
 } else {
-$OldAppVersions = Get-NAVAppInfo -ServerInstance $ServerInstance `
+ $OldAppVersions = Get-NAVAppInfo -ServerInstance $ServerInstance `
                                  -Name $AppInfo.Name `
                                  -Publisher $AppInfo.Publisher `
                                  -Tenant $AppInfo.Tenant `
+                                 -TenantSpecificProperties `
                                  -Verbose:$false `
                                  -ErrorAction Stop | Where-Object { (-not $_.IsInstalled) -and ($_.Version -ne $AppInfo.Version) } | Sort-Object -Property Version
 }
