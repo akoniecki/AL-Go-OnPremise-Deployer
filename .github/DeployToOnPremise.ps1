@@ -242,12 +242,12 @@ try {
                 -Method Patch `
                 -Uri $customUri$tenantUrl `
                 -Headers ((GetAuthHeaders) + $ifMatchHeader + $streamHeader) `
-                -Body $fileBody
+                -Body $fileBody | Out-Null
             Write-Host "."    
             Invoke-RestMethod `
                 -Method Post `
                 -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))/Microsoft.NAV.upload$tenantUrl" `
-                -Headers ((GetAuthHeaders) + $ifMatchHeader)
+                -Headers ((GetAuthHeaders) + $ifMatchHeader) | Out-Null
             Write-Host "."    
             $completed = $false
             $errCount = 0
