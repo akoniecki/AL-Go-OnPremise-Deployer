@@ -1,8 +1,14 @@
 # AL-Go OnPremise Deployer 🚀
 
-## Now supports deployment to Multi Tenant Business Central on-premise environments!
-**Important Note** 
-Fix to **ALOPS External Deployer** is required! Replace following Powershell file in order to deploy to multitenant on-premise Business Central environment.
+## Now Supports Deployment to Multi-Tenant Business Central On-Premise Environments!
 
+---
 
-## 🚀 File to replace: C:\Program Files\alops\externaldeployer\bc\psscripts\**_Deploy-ALOpsNAVApp.ps1**
+### ⚠️ Important Note ⚠️
+
+A **fix to ALOps External Deployer** is required to deploy to a multi-tenant on-premise Business Central environment. 
+
+Please replace the following PowerShell file:
+
+📂 **File to replace:**
+`C:\Program Files\alops\externaldeployer\bc\psscripts\_Deploy-ALOpsNAVApp.ps1`
