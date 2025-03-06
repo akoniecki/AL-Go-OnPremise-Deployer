@@ -17,7 +17,7 @@ Write-Host "*** ServerInstance = [$($ServerInstance)]"
 Write-Host "*** ContainerId = [$($ContainerId)]"
 Write-Host "*** Tenant = [$($Tenant)]"
 
-$PublishScope = "Tenant"
+$PublishScope = "Global" # "Tenant"
 $SkipVerification = $true
 
 Import-Module -Name "ALOps.ExternalDeployer" -Verbose:$false | out-null
@@ -59,7 +59,7 @@ Write-Host " * App.Version   = $($AppInfo.Version)"
 #                               -Version $AppInfo.Version `
 #                               -Verbose:$false `
 #                               -ErrorAction Stop
-if ([string]::IsNullOrEmpty($Tenant) -or $Tenant -eq "default") {
+if ([string]::IsNullOrEmpty($Tenant) -or $Tenant -eq "default" -or $PublishScope.ToUpper() -ne "TENANT") {
 $PublishedApp = Get-NAVAppInfo -ServerInstance $ServerInstance `
                                -Name $AppInfo.Name `
                                -Publisher $AppInfo.Publisher `
@@ -176,7 +176,7 @@ foreach($Tenant in $Tenants){
 #                                 -Publisher $AppInfo.Publisher `
 #                                 -Verbose:$false `
 #                                 -ErrorAction Stop | Where-Object { (-not $_.IsInstalled) -and ($_.Version -ne $AppInfo.Version) } | Sort-Object -Property Version
-if ([string]::IsNullOrEmpty($Tenant) -or $Tenant -eq "default") {
+if ([string]::IsNullOrEmpty($Tenant) -or $Tenant -eq "default" -or $PublishScope.ToUpper() -ne "TENANT") {
 $OldAppVersions = Get-NAVAppInfo -ServerInstance $ServerInstance `
                                  -Name $AppInfo.Name `
                                  -Publisher $AppInfo.Publisher `
@@ -186,7 +186,7 @@ $OldAppVersions = Get-NAVAppInfo -ServerInstance $ServerInstance `
  $OldAppVersions = Get-NAVAppInfo -ServerInstance $ServerInstance `
                                  -Name $AppInfo.Name `
                                  -Publisher $AppInfo.Publisher `
-                                 -Tenant $AppInfo.Tenant `
+                                 -Tenant $Tenant.Id `
                                  -TenantSpecificProperties `
                                  -Verbose:$false `
                                  -ErrorAction Stop | Where-Object { (-not $_.IsInstalled) -and ($_.Version -ne $AppInfo.Version) } | Sort-Object -Property Version
@@ -199,7 +199,7 @@ foreach ($OldAppVersion in $OldAppVersions){
     #                 -Version $OldAppVersion.Version `
     #                 -Verbose:$false `
     #                 -ErrorAction Stop
-    if ([string]::IsNullOrEmpty($Tenant) -or $Tenant -eq "default") {
+    if ([string]::IsNullOrEmpty($Tenant) -or $Tenant -eq "default" -or $PublishScope.ToUpper() -ne "TENANT") {
         Unpublish-NAVApp -ServerInstance $ServerInstance `
                          -Name $OldAppVersion.Name `
                          -Publisher $OldAppVersion.Publisher `
