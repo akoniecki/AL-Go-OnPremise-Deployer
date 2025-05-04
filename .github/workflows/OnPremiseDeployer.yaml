@@ -93,30 +93,6 @@ jobs:
             Invoke-WebRequest -Uri ($deployerBaseUrl + $file) -OutFile $outputPath
           }
           Write-Output "AL-Go OnPremise Deployer files downloaded successfully."
-        
-          # Update scheduler if provided
-          Write-Output "Checking scheduler settings..."
-          $schedule = $ENV:UpdateOnPremiseDeployerSchedule
-          $yamlFilePath = ".github\workflows\OnPremiseDeployer.yaml"
-          $yaml = [Yaml]::Load($yamlFilePath)
-          $scheduleStart = 0
-          $scheduleCount = 0
-          if ($yaml.Find('on:/schedule:', [ref] $scheduleStart, [ref] $scheduleCount)) {
-              $yaml.Remove($scheduleStart, $scheduleCount)
-              Write-Host "."
-          }
-          if ($schedule) {
-            if ($schedule -match '^\S+ \S+ \S+ \S+ \S+$') {
-              $yamlOn = $yaml.Get('on:/')
-              $yaml.Replace('on:/', $yamlOn.content + @('schedule:', "  - cron: '$schedule'"))
-              $yaml.content -join "`n" | Out-File -FilePath $yamlFilePath -Encoding utf8 -Force
-              Write-Host "Scheduler settings updated successfully."
-            } else {
-                Write-Host -ForegroundColor Red "Invalid cron expression: $schedule"
-            }
-          } else {
-            Write-Output "No scheduler setting found. To enable it, update your AL-Go-Settings.json file with: `"UpdateOnPremiseDeployerSchedule`": `"0 19 * * 2`"."
-          }
     
           # Commit changes
           $commitMessage = if ($update) { "Update AL-Go OnPremise Deployer" } else { "Install AL-Go OnPremise Deployer" }
