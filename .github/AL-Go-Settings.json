@@ -1,9 +1,6 @@
 {
   "type": "PTE",
   "templateUrl": "https://github.com/microsoft/AL-Go-PTE@main",
-  "UpdateOnPremiseDeployerSchedule": "0 19 * * 2,4",
-  "UpdateGitHubGoSystemFilesSchedule": "0 18 * * *",
-  "CICDSchedule": "0 20 * * 2,4",
   "environments": [
     "OnPremiseTest",
     "OnPremiseTestCustom",
