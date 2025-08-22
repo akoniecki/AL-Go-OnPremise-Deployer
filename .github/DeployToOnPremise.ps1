@@ -129,8 +129,8 @@ try {
         "schemaSyncMode" = "Add"
     }
     $schemaSyncMode = $deployParameters.schemaSyncMode
-    $companyName = if ($parameters.PSObject.Properties["companyName"]) { $parameters.companyName } else { "" }
-
+    $companyName = if ($parameters.ContainsKey('companyName')) { $companyName = $parameters['companyName'] } else { "" }
+    
     Write-Host "Publishing apps to environment using automation API"
 
     function GetAuthHeaders {
@@ -184,122 +184,150 @@ try {
     $ifMatchHeader = @{ "If-Match" = '*'}
     $jsonHeader = @{ "Content-Type" = 'application/json'}
     $streamHeader = @{ "Content-Type" = 'application/octet-stream'}
-
-    Sort-AppFilesByDependencies -appFiles $appFiles -excludeRuntimePackages | ForEach-Object {
-        Write-Host -NoNewline "$([System.IO.Path]::GetFileName($_)) - "
-        $appJson = Get-AppJsonFromAppFile -appFile $_
-        
-        $existingApp = $extensions | Where-Object { $_.id -eq $appJson.id -and $_.isInstalled }
-        if ($existingApp) {
-            if ($existingApp.isInstalled) {
-                $existingVersion = [System.Version]"$($existingApp.versionMajor).$($existingApp.versionMinor).$($existingApp.versionBuild).$($existingApp.versionRevision)"
-                if ($existingVersion -ge $appJson.version) {
-                    Write-Host "already installed"
+    try {
+        Sort-AppFilesByDependencies -appFiles $appFiles -excludeRuntimePackages | ForEach-Object {
+            $appFile = $_
+            Write-Host "$([System.IO.Path]::GetFileName($appFile)) - "
+            $appJson = Get-AppJsonFromAppFile -appFile $appFile
+            $existingApp = $extensions | Where-Object { $_.id -eq $appJson.id -and $_.isInstalled }
+            if ($existingApp) {
+                if ($existingApp.isInstalled) {
+                    $existingVersion = [System.Version]"$($existingApp.versionMajor).$($existingApp.versionMinor).$($existingApp.versionBuild).$($existingApp.versionRevision)"
+                    if ($existingVersion -ge $appJson.version) {
+                        Write-Host "already installed"
+                    }
+                    else {
+                            Write-Host "upgrading"
+                            $existingApp = $null
+                        }
+                    }
+                    else {
+                        Write-Host "installing"
+                        $existingApp = $null
+                    }
                 }
                 else {
-                    Write-Host "upgrading"
-                    $existingApp = $null
+                    Write-Host "publishing and installing"
+            }
+            if (!$existingApp) {
+                $extensionUpload = (Invoke-RestMethod -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionUpload$tenantUrl" -Headers (GetAuthHeaders)).value
+                Write-Host "."
+                if ($extensionUpload -and $extensionUpload.systemId) {
+                    $extensionUpload = Invoke-RestMethod `
+                        -Method Patch `
+                        -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))$tenantUrl" `
+                        -Headers ((GetAuthHeaders) + $ifMatchHeader + $jsonHeader) `
+                        -Body ($body | ConvertTo-Json -Compress)
                 }
-            }
-            else {
-                Write-Host "installing"
-                $existingApp = $null
-            }
-        }
-        else {
-            Write-Host "publishing and installing"
-        }
-        if (!$existingApp) {
-            $extensionUpload = (Invoke-RestMethod -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionUpload$tenantUrl" -Headers (GetAuthHeaders)).value
-            Write-Host "."
-            if ($extensionUpload -and $extensionUpload.systemId) {
-                $extensionUpload = Invoke-RestMethod `
+                else {
+                    $ExtensionUpload = Invoke-RestMethod `
+                        -Method Post `
+                        -Uri "$automationApiUrl/companies($companyId)/extensionUpload$tenantUrl" `
+                        -Headers ((GetAuthHeaders) + $jsonHeader) `
+                        -Body ($body | ConvertTo-Json -Compress)
+                }
+                Write-Host "."
+                if ($null -eq $extensionUpload.systemId) {
+                    throw "Unable to upload extension"
+                }
+                $fileStream = [System.IO.File]::OpenRead($appFile)
+
+                # Custom Uri support added for OnPremise deployment
+                $customUri = $extensionUpload.'extensionContent@odata.mediaEditLink'
+                $customUriStartIndex = $customUri.IndexOf("/companies")
+                $customUri = $customUri.Substring($customUriStartIndex)
+                $customUri = $automationApiUrl + $customUri
+
+                Invoke-RestMethod `
                     -Method Patch `
-                    -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))$tenantUrl" `
-                    -Headers ((GetAuthHeaders) + $ifMatchHeader + $jsonHeader) `
-                    -Body ($body | ConvertTo-Json -Compress)
-            }
-            else {
-                $ExtensionUpload = Invoke-RestMethod `
+                    -Uri $customUri$tenantUrl `
+                    -Headers ((GetAuthHeaders) + $ifMatchHeader + $streamHeader) `
+                    -Body $fileStream | Out-Null
+                $fileStream.Close()
+                Write-Host "."    
+                Invoke-RestMethod `
                     -Method Post `
-                    -Uri "$automationApiUrl/companies($companyId)/extensionUpload$tenantUrl" `
-                    -Headers ((GetAuthHeaders) + $jsonHeader) `
-                    -Body ($body | ConvertTo-Json -Compress)
-            }
-            Write-Host "."
-            if ($null -eq $extensionUpload.systemId) {
-                throw "Unable to upload extension"
-            }
-            $fileBody = [System.IO.File]::ReadAllBytes($_)
+                    -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))/Microsoft.NAV.upload$tenantUrl" `
+                    -Headers ((GetAuthHeaders) + $ifMatchHeader) `
+                    -ErrorAction SilentlyContinue | Out-Null
+                Write-Host "."    
+                $completed = $false
+                $errCount = 0
+                $sleepSeconds = 30
+                $lastStatus = ''
+                while (!$completed)
+                {
+                    Start-Sleep -Seconds $sleepSeconds
+                    try {
+                        $extensionDeploymentStatusResponse = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionDeploymentStatus$tenantUrl" -UseBasicParsing
+                        $extensionDeploymentStatuses = (ConvertFrom-Json $extensionDeploymentStatusResponse.Content).value
 
-            # Custom Uri support added for OnPremise deployment
-            $customUri = $extensionUpload.'extensionContent@odata.mediaEditLink'
-            $customUriStartIndex = $customUri.IndexOf("/companies")
-            $customUri = $customUri.Substring($customUriStartIndex)
-            $customUri = $automationApiUrl + $customUri
-
-            Invoke-RestMethod `
-                -Method Patch `
-                -Uri $customUri$tenantUrl `
-                -Headers ((GetAuthHeaders) + $ifMatchHeader + $streamHeader) `
-                -Body $fileBody | Out-Null
-            Write-Host "."    
-            Invoke-RestMethod `
-                -Method Post `
-                -Uri "$automationApiUrl/companies($companyId)/extensionUpload($($extensionUpload.systemId))/Microsoft.NAV.upload$tenantUrl" `
-                -Headers ((GetAuthHeaders) + $ifMatchHeader) | Out-Null
-            Write-Host "."    
-            $completed = $false
-            $errCount = 0
-            $sleepSeconds = 30
-            while (!$completed)
-            {
-                Start-Sleep -Seconds $sleepSeconds
-                try {
-                    $extensionDeploymentStatusResponse = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensionDeploymentStatus$tenantUrl" -UseBasicParsing
-                    $extensionDeploymentStatuses = (ConvertFrom-Json $extensionDeploymentStatusResponse.Content).value
-
-                    $completed = $true
-                    $extensionDeploymentStatuses | Where-Object { $_.publisher -eq $appJson.publisher -and $_.name -eq $appJson.name -and $_.appVersion -eq $appJson.version } | % {
-                        if ($_.status -eq "InProgress") {
-                            Write-Host "."
-                            $completed = $false
-                        }
-                        elseif ($_.Status -eq "Unknown") {
-                            throw "Unknown Error"
-                        }
-                        elseif ($_.Status -ne "Completed") {
-                            $errCount = 5
-                            throw $_.status
+                        $thisExtension = $extensionDeploymentStatuses | Where-Object { $_.publisher -eq $appJson.publisher -and $_.name -eq $appJson.name -and $_.appVersion -eq $appJson.version }
+                        if ($null -eq $thisExtension) {
+                            throw "Unable to find extension deployment status"
+                        } 
+                        $thisExtension | ForEach-Object {
+                            if ($_.status -ne $lastStatus) {
+                                Write-Host $_.status
+                                $lastStatus = $_.status
+                            }
+                            if ($_.status -eq "InProgress") {
+                                $errCount = 0
+                                $sleepSeconds = 5
+                                Write-Host "."
+                            }
+                            elseif ($_.Status -eq "Unknown") {
+                                throw "Unknown Error"
+                            }
+                            elseif ($_.Status -eq "Completed") {
+                                $completed = $true
+                                if (-not $DoNotSendTelemetry) {
+                                    Send-TelemetryData -status "completed"
+                                }
+                            }
+                            else {
+                                $errCount = 5
+                                throw $_.status
+                            }
                         }
                     }
-                    $errCount = 0
-                    $sleepSeconds = 5
-                }
-                catch {
-                    if ($errCount++ -gt 4) {
-                        Write-Host $_.Exception.Message
-                        throw "Unable to publish app. Please open the Extension Deployment Status Details page in Business Central to see the detailed error message."
+                    catch {
+                        if ($errCount++ -gt 4) {
+                            Write-Host $_.Exception.Message
+                            if (-not $DoNotSendTelemetry) {
+                                Send-TelemetryData -status "failed"
+                            }
+                            throw "Unable to publish app. Please open the Extension Deployment Status Details page in Business Central to see the detailed error message."
+                        }
+                        $sleepSeconds += $sleepSeconds
+                        Write-Host "Error: $($_.Exception.Message). Retrying in $sleepSeconds seconds"
                     }
-                    $sleepSeconds += $sleepSeconds
-                    $completed = $false
                 }
-            }
-            if ($completed) {
-                Write-Host "completed"
             }
         }
     }
-    if (-not $DoNotSendTelemetry) {
-        Send-TelemetryData -status "completed"
+    catch [System.Net.WebException],[System.Net.Http.HttpRequestException] {
+        Write-Host "ERROR $($_.Exception.Message)"
+        Write-Host $_.ScriptStackTrace
+        throw (GetExtendedErrorMessage $_)
+    }
+    catch {
+        Write-Host "ERROR: $($_.Exception.Message) [$($_.Exception.GetType().FullName)]"
+        throw
+    }
+    finally {
+        $getExtensions = Invoke-WebRequest -Headers (GetAuthHeaders) -Method Get -Uri "$automationApiUrl/companies($companyId)/extensions$tenantUrl" -UseBasicParsing
+        $extensions = (ConvertFrom-Json $getExtensions.Content).value | Sort-Object -Property DisplayName
+        
+        Write-Host
+        Write-Host "Extensions after:"
+        $extensions | ForEach-Object { Write-Host " - $($_.DisplayName), Version $($_.versionMajor).$($_.versionMinor).$($_.versionBuild).$($_.versionRevision), Installed=$($_.isInstalled)" }
+
     }
 }
-catch {
-    OutputError -message "Deploying to $($deploymentSettings.EnvironmentName) failed.$([environment]::Newline) $($_.Exception.Message)"
-    if (-not $DoNotSendTelemetry) {
-        Send-TelemetryData -status "failed"
-    }
-    exit
+catch [System.Net.WebException],[System.Net.Http.HttpRequestException] {
+    Write-Host "ERROR $($_.Exception.Message)"
+    throw (GetExtendedErrorMessage $_)
 }
 finally {
     if (Test-Path $appFolder) {
