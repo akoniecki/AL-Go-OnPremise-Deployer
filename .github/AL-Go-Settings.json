@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/microsoft/AL-Go-Actions/v8.1/.Modules/settings.schema.json",
   "type": "PTE",
   "templateUrl": "https://github.com/microsoft/AL-Go-PTE@main",
   "environments": [
@@ -68,5 +69,5 @@
     "EnvironmentName": "bcserverrest",
     "ContinuousDeployment": false
   },
-  "templateSha": "e2478819f6dda468d6716036ccdd2dc89dd458b6"
+  "templateSha": "2b0291277622df06df2856bc05768be2ebb5a6b5"
 }

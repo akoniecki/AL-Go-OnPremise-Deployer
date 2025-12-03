@@ -1,3 +1,166 @@
+## v8.1
+
+### Custom AL-Go files
+
+AL-Go for GitHub now supports updating files from your custom templates via the new `customALGoFiles` setting. Read more at [customALGoFiles](https://aka.ms/algosettings#customALGoFiles).
+
+### Set default values for workflow inputs
+
+A new setting `workflowDefaultInputs` allows you to configure default values for workflow_dispatch inputs. This makes it easier to run workflows manually with consistent settings across your team.
+
+When you add this setting to your AL-Go settings file and run the "Update AL-Go System Files" workflow, the default values will be automatically applied to the workflow YAML files in your repository.
+The default values must match the input types (boolean, number, string, or choice) defined in the workflow YAML files.
+
+Example configuration:
+
+```json
+{
+  "workflowDefaultInputs": [
+    { "name": "directCommit", "value": true },
+    { "name": "useGhTokenWorkflow", "value": true }
+  ]
+}
+```
+
+This setting can be used on its own in repository settings to apply defaults to all workflows with matching input names. Alternatively, you can use it within [conditional settings](https://aka.ms/algosettings#conditional-settings) to apply defaults only to specific workflows, branches, or other conditions.
+
+Example using conditional settings to target specific workflows:
+
+```json
+{
+  "conditionalSettings": [
+    {
+      "workflows": ["Create Release"],
+      "settings": {
+        "workflowDefaultInputs": [
+          { "name": "directCommit", "value": true },
+          { "name": "releaseType", "value": "Prerelease" }
+        ]
+      }
+    }
+  ]
+}
+```
+
+**Important:** When multiple conditional settings blocks match and both define `workflowDefaultInputs`, the arrays are merged following AL-Go's standard behavior for complex setting types (all entries are kept). If the same input name appears in multiple entries, the last matching entry takes precedence.
+
+Read more at [workflowDefaultInputs](https://aka.ms/algosettings#workflowDefaultInputs).
+
+### Issues
+
+- Issue 2039 Error when deploy to environment: NewTemporaryFolder is not recognized
+- Issue 1961 KeyVault access in PR pipeline
+- Discussion 1911 Add support for reportSuppressedDiagnostics
+- Discussion 1968 Parameter for settings passed to CreateDevEnv
+- Issue 1945 Deploy Reference Documentation fails for CI/CD
+- Use Runner_Temp instead of GetTempFolder whenever possible
+- Issue 2016 Running Update AL-Go system files with branches wildcard `*` tries to update _origin_
+- Issue 1960 Deploy Reference Documentation fails
+- Discussion 1952 Set default values on workflow_dispatch input
+
+### Deprecations
+
+- `unusedALGoSystemFiles` will be removed after October 1st 2026. Please use [`customALGoFiles.filesToExclude`](https://aka.ms/algosettings#customALGoFiles) instead.
+
+## v8.0
+
+### Mechanism to overwrite complex settings type
+
+By default, AL-Go merges settings from various places (see [settings levels](https://aka.ms/algosettings#where-are-the-settings-located)). Basic setting types such as `string` and `integer` are overwritten, but settings with complex types such as `array` and `object` are merged.
+
+However, sometimes it is useful to avoid merging complex types. This can be achieved by specifying `overwriteSettings` property on a settings object. The purpose of the property is to list settings, for which the value will be overwritten, instead of merged. Read more at [overwriteSettings property](https://aka.ms/algosettings#overwriteSettings)
+
+### AL Code Analysis tracked in GitHub
+
+AL-Go already supports AL code analysis, but up until now this was not tracked in GitHub. It is now possible to track code analysis issues automatically in the GitHub security tab, as well as having any new issues posted as a comment in Pull Requests.
+
+Enable this feature by using the new setting [trackALAlertsInGithub](https://aka.ms/algosettings#trackALAlertsInGithub). This setting must be enabled at the repo level, but can optionally be disabled per project.
+
+Please note that some automated features are premium and require the use of [GitHub Code Security](https://docs.github.com/en/get-started/learning-about-github/about-github-advanced-security)
+
+### Issues
+
+- Discussion 1885 Conditional settings for CI/CD are not applied
+- Discussion 1899 Remove optional properties from "required" list in settings.schema.json
+- Issue 1905 AL-Go system files update fails (Get Workflow Multi-Run Branches action fails when there are tags with same value but different casing)
+- Issue 1926 Deployment fails when using build modes
+- Issue 1898 GetDependencies in localDevEnv does not fallback to github token
+- Issue 1947 Project settings are ignored when loading bccontainerhelper
+- Issue 1937 trackALAlertsInGitHub is failing in preview
+- DeployTo settings from environment-specific AL-Go settings are not applied when deploying
+- `ReadSettings` action outputs too much information that is mainly used for debugging
+
+## v7.3
+
+### Configurable merge method for pull request auto-merge
+
+A new setting `pullRequestMergeMethod` has been added to the `commitOptions` structure, allowing you to configure which merge method to use when `pullRequestAutoMerge` is enabled. Valid values are "merge" or "squash". The default value is "squash" to maintain backward compatibility.
+
+Example
+
+```json
+{
+  "commitOptions": {
+    "pullRequestAutoMerge": true,
+    "pullRequestMergeMethod": "merge"
+  }
+}
+```
+
+### AL-Go Telemetry
+
+AL-Go now offers a dataexplorer dashboard to get started with AL-Go telemetry. Additionally, we've updated the documentation to include a couple of kusto queries if you would rather build your own reports.
+
+### Support for AL-Go settings as GitHub environment variable: ALGoEnvironmentSettings
+
+AL-Go settings can now be defined in GitHub environment variables. To use this feature, create a new variable under your GitHub environment called `ALGoEnvironmentSettings`. Please note that this variable should not include your environment name.
+
+Settings loaded this way, will only be available during the Deploy step of the CI/CD or Publish to Environment actions, but not the Build step, making it most suitable for the [DeployTo setting](https://aka.ms/algosettings#deployto). Settings defined in this variable will take priority over any setting defined in AL-Go repo, org or settings files.
+
+The contents of the variable should be a JSON block, similar to any other settings file or variable. When defining the `DeployTo\<EnvName>` setting in this variable, it should still include the environment name. Eg:
+
+```
+{
+  DeployToProduction {
+    "Branches": [
+        "*"
+    ],
+    "includeTestAppsInSandboxEnvironment": false,
+    "excludeAppIds": [ 1234 ]
+  }
+}
+```
+
+Please note, that due to certain security limitations, the properties `runs-on`, `shell` and `ContinousDeployment` of the `DeployTo` setting will <ins>**NOT**</ins> be respected if defined in a GitHub environment variable. To use these properties, please keep them defined elsewhere, such as your AL-Go settings file or Org/Repo settings variables.
+
+### Issues
+
+- Issue 1770 Wrong type of _projects_ setting in settings schema
+- Issue 1787 Publish to Environment from PR fails in private repos
+- Issue 1722 Check if apps are already installed on a higher version before deploying
+- Issue 1774 Increment Version Number with +0.1 can increment some version numbers twice
+- Issue 1837 Deployment from PR builds fail if PR branch name includes forward slashes (e.g., `feature/branch-name`).
+- Issue 1852 Page Scripting Tests are not added to build summary
+- Issue 1829 Added custom jobs cannot be removed
+- Idea 1856 Include workflow name as input for action ReadSetting
+
+### Additional debug logging functionality
+
+We have improved how logging is handled in AL-Go, and now make better use of GitHub built-in extended debug logging functionality. Extended debug logging can be enabled when re-running actions by clicking the 'Enable debug logging' checkbox in the pop-up window. This can be done both for jobs that failed and jobs that succeeded, but did not produce the correct result.
+
+### Add custom jobs to AL-Go workflows
+
+It is now possible to add custom jobs to AL-Go workflows. The Custom Job needs to be named `CustomJob<something>` and should be placed after all other jobs in the .yaml file. The order of which jobs are executed is determined by the Needs statements. Your custom job will be executed after all jobs specified in the Needs clause in your job and if you need the job to be executed before other jobs, you should add the job name in the Needs clause of that job. See [https://aka.ms/algosettings#customjobs](https://aka.ms/algosettings#customjobs) for details.
+
+Note that custom jobs might break by future changes to AL-Go for GitHub workflows. If you have customizations to AL-Go for GitHub workflows, you should always doublecheck the pull request generated by Update AL-Go System Files.
+
+### Support for Custom AL-Go template repositories
+
+Create an AL-Go for GitHub repository based on [https://aka.ms/algopte](https://aka.ms/algopte) or [https://aka.ms/algoappsource](https://aka.ms/algoappsource), add custom workflows, custom jobs and/or settings to this repository and then use that repository as the template repository for other repositories. Using custom template repositories allows you to create and use highly customized template repositories and control the uptake of this in all repositories. See [https://aka.ms/algosettings#customtemplate](https://aka.ms/algosettings#customtemplate) for details.
+
+> [!NOTE]
+> Customized repositories might break by future changes to AL-Go for GitHub. If you are customizing AL-Go for GitHub, you should always double-check the pull request when updating AL-Go system files in your custom template repositories.
+
 ## v7.2
 
 ### Removed functionality
@@ -818,7 +981,7 @@ Setting the repo setting "runs-on" to "Ubuntu-latest", followed by running Updat
 ### Issues
 
 - Issue #143 Commit Message for **Increment Version Number** workflow
-- Issue #160 Create local DevEnv aith appDependencyProbingPaths
+- Issue #160 Create local DevEnv with appDependencyProbingPaths
 - Issue #156 Versioningstrategy 2 doesn't use 24h format
 - Issue #155 Initial Add existing app fails with "Cannot find path"
 - Issue #152 Error when loading dependencies from releases
