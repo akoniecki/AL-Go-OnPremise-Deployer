@@ -48,7 +48,7 @@
 
 ## 📈 Usage    
 1. **Automatic Updates:**
-    - Set up the `UpdateOnPremiseDeployerSchedule` in `AL-Go-Settings.ps1`:
+    - Set up the `UpdateOnPremiseDeployerSchedule` in `AL-Go-Settings.json`:
         ```json
         {
             "UpdateOnPremiseDeployerSchedule": "0 19 * * 2"
@@ -57,7 +57,7 @@
     - Run the "Install or Update AL-Go OnPremise Deployer" workflow to apply scheduler changes.
 
 2. **Configure Environments:**
-    - Update `AL-Go-Settings.ps1` with your on-premise environments:
+    - Update `AL-Go-Settings.json` with your on-premise environments:
         ```json
         {
             "environments": [
